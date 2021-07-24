@@ -19,6 +19,8 @@ namespace GalacticScale.Generators
         public GSGeneratorConfig Config { get; } = new GSGeneratorConfig();
         public GSOptions Options { get; } = new GSOptions();
 
+        // /////////////////////////// METHODS /////////////////////////// //
+
         /// <summary>Initialization of UI and setup of default preferenses values</summary>
         public void Init()
         {
@@ -48,6 +50,8 @@ namespace GalacticScale.Generators
             return preferences;
         }
 
+        /// <summary>Callback for setting default star count for the cluster</summary>
+        /// <param name="o">Default star count</param>
         private void DefaultStarCountCallback(Val o)
         {
             Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64);
@@ -118,169 +122,85 @@ namespace GalacticScale.Generators
             UI.Add("countBias", Options.Add(GSUI.Slider("Planet Count Bias", 0, 50, 100, "sizeBias", CountBiasCallback)));
             UI.Add("minPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Min planet size", 50, 200, 200, "minPlanetSize", MinPlanetSizeCallback)));
             UI.Add("maxPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Max planet size", 200, 400, 400, "maxPlanetSize", MaxPlanetSizeCallback)));
-            UI.Add("sizeBias", Options.Add(GSUI.Slider("Planet Size Bias", 0, 50, 100, "sizeBias", SizeBiasCallback)));
+            UI.Add("sizeBias", Options.Add(GSUI.Slider("Planet Size Bias", 0, 50, 100, "sizeBias", PlanetSizeBiasCallback)));
 
             UI.Add("chanceGas", Options.Add(GSUI.Slider("Chance Gas", 10, 20, 50, "chanceGas", GasChanceCallback)));
             UI.Add("chanceMoon", Options.Add(GSUI.Slider("Chance Moon", 10, 20, 80, "chanceMoon", MoonChanceCallback)));
         }
 
-        private void SizeBiasCallback(Val o)
-        {
-            //SetAllStarTypeOptions("sizeBias", o);
-            preferences.Set("sizeBias", o);
-        }
-
-        private void CountBiasCallback(Val o)
-        {
-            //SetAllStarTypeOptions("countBias", o);
-            preferences.Set("countBias", o);
-        }
-
+        /// <summary>Callback for setting the chance for a planet to be a moon</summary>
+        /// <param name="o">Moon chance</param>
         private void MoonChanceCallback(Val o)
         {
             //SetAllStarTypeOptions("chanceMoon", o);
             preferences.Set("chanceMoon", o);
         }
 
+        /// <summary>Callback for setting the chance for a planet to be a gas giant</summary>
+        /// <param name="o">Gas giant chance</param>
         private void GasChanceCallback(Val o)
         {
-            //SetAllStarTypeOptions("chanceGas", o);
             preferences.Set("chanceGas", o);
         }
 
+        /// <summary>Callback for setting min planet count</summary>
+        /// <param name="o">Min planet count value</param>
         private void MinPlanetCountCallback(Val o)
         {
             var maxCount = preferences.GetInt("maxPlanetCount");
             if (maxCount == -1f) maxCount = 10;
             if (maxCount < o)
             {
-                //GS2.Warn("<");
-                //o = maxCount;
                 preferences.Set("minPlanetCount", maxCount);
-                //UI["minPlanetCount"].Set(o);
             }
-
-            //SetAllStarTypeOptions("minPlanetCount", o);
         }
 
+        /// <summary>Callback for setting max planet count</summary>
+        /// <param name="o">Max planet count value</param>
         private void MaxPlanetCountCallback(Val o)
         {
             var minCount = preferences.GetInt("minPlanetCount");
             if (minCount == -1f) minCount = 1;
             if (minCount > o)
             {
-                //GS2.Warn(">");
-                //o = minCount;
                 preferences.Set("maxPlanetCount", minCount);
-                //UI["maxPlanetCount"].Set(o);
             }
-
-            //SetAllStarTypeOptions("maxPlanetCount", o);
         }
 
+        /// <summary>Callback for setting planet count bias</summary>
+        /// <param name="o">Planet count bias</param>
+        private void CountBiasCallback(Val o)
+        {
+            preferences.Set("countBias", o);
+        }
+
+        /// <summary>Callback for setting min planet size</summary>
+        /// <param name="o">Min planet size value</param>
         private void MinPlanetSizeCallback(Val o)
         {
             var maxSize = preferences.GetFloat("maxPlanetSize");
             if (maxSize == -1f) maxSize = 400;
-            if (maxSize < o) o = maxSize;
-            //if (preferences.GetBool("safeMode")) preferences.Set("minPlanetSize", SafePlanetSize(o));
-            //else
-                preferences.Set("minPlanetSize", Utils.ParsePlanetSize(o));
+            if (maxSize < o) { o = maxSize; }
+            preferences.Set("minPlanetSize", Utils.ParsePlanetSize(o));
             UI["minPlanetSize"].Set(preferences.GetFloat("minPlanetSize"));
-            //SetAllStarTypeMinSize(o);
         }
 
+        /// <summary>Callback for setting max planet size</summary>
+        /// <param name="o">Max planet size value</param>
         private void MaxPlanetSizeCallback(Val o)
         {
             var minSize = preferences.GetFloat("minPlanetSize");
             if (minSize == -1f) minSize = 50;
-            if (minSize > o) o = minSize;
-            //if (preferences.GetBool("safeMode")) preferences.Set("maxPlanetSize", SafePlanetSize(o));
-            //else
-                preferences.Set("maxPlanetSize", Utils.ParsePlanetSize(o));
+            if (minSize > o) { o = minSize; }
+            preferences.Set("maxPlanetSize", Utils.ParsePlanetSize(o));
             UI["maxPlanetSize"].Set(preferences.GetFloat("maxPlanetSize"));
-            //SetAllStarTypeMaxSize(o);
         }
 
-        /// <summary>Generation for star frequences in the cluster</summary>
-        /// <returns>dictionary "Type ID"-"Frequency"</returns>
-        private Dictionary<string, double> CalculateFrequencies()
+        /// <summary>Callback for planet size bias</summary>
+        /// <param name="o">Planet size bias</param>
+        private void PlanetSizeBiasCallback(Val o)
         {
-            var StarFreqTupleArray = new (string type, double chance)[14];
-            var fK = preferences.GetDouble("freqK", 40);
-            var fM = preferences.GetDouble("freqM", 50);
-            var fG = preferences.GetDouble("freqG", 30);
-            var fF = preferences.GetDouble("freqF", 25);
-            var fA = preferences.GetDouble("freqA", 10);
-            var fB = preferences.GetDouble("freqB", 4);
-            var fO = preferences.GetDouble("freqO", 2);
-            var fBH = preferences.GetDouble("freqBH", 1);
-            var fN = preferences.GetDouble("freqN", 1);
-            var fW = preferences.GetDouble("freqW", 2);
-            var fRG = preferences.GetDouble("freqRG", 1);
-            var fYG = preferences.GetDouble("freqYG", 1);
-            var fWG = preferences.GetDouble("freqWG", 1);
-            var fBG = preferences.GetDouble("freqBG", 1);
-            var total = fK + fM + fG + fF + fA + fB + fO + fBH + fN + fW + fRG + fYG + fWG + fBG;
-
-            StarFreqTupleArray[0] = ("K", fK / total);
-            StarFreqTupleArray[1] = ("M", fM / total);
-            StarFreqTupleArray[2] = ("G", fG / total);
-            StarFreqTupleArray[3] = ("F", fF / total);
-            StarFreqTupleArray[4] = ("A", fA / total);
-            StarFreqTupleArray[5] = ("B", fB / total);
-            StarFreqTupleArray[6] = ("O", fO / total);
-            StarFreqTupleArray[7] = ("BH", fBH / total);
-            StarFreqTupleArray[8] = ("N", fN / total);
-            StarFreqTupleArray[9] = ("W", fW / total);
-            StarFreqTupleArray[10] = ("RG", fRG / total);
-            StarFreqTupleArray[11] = ("YG", fYG / total);
-            StarFreqTupleArray[12] = ("WG", fWG / total);
-            StarFreqTupleArray[13] = ("BG", fBG / total);
-
-            starFreq = new Dictionary<string, double>();
-            starFreq.Add("K", fK / total);
-            for (var i = 1; i < StarFreqTupleArray.Length; i++)
-            {
-                var element = StarFreqTupleArray[i];
-                var previousElement = StarFreqTupleArray[i - 1];
-                starFreq.Add(element.type, element.chance + previousElement.chance);
-                StarFreqTupleArray[i].chance += previousElement.chance;
-            }
-
-            return starFreq;
-        }
-
-        /// <summary>Method for randomly chosing star type</summary>
-        /// <returns>pair "Star type"-"Star spectral class"</returns>
-        private (EStarType type, ESpectrType spectr) ChooseStarType()
-        {
-            var choice = random.NextDouble();
-            var starType = "";
-            for (var i = 0; i < starFreq.Count; i++)
-                if (choice < starFreq.ElementAt(i).Value)
-                {
-                    starType = starFreq.ElementAt(i).Key;
-                    break;
-                }
-
-            switch (starType)
-            {
-                case "K": return (EStarType.MainSeqStar, ESpectrType.K);
-                case "M": return (EStarType.MainSeqStar, ESpectrType.M);
-                case "G": return (EStarType.MainSeqStar, ESpectrType.G);
-                case "F": return (EStarType.MainSeqStar, ESpectrType.F);
-                case "A": return (EStarType.MainSeqStar, ESpectrType.A);
-                case "B": return (EStarType.MainSeqStar, ESpectrType.B);
-                case "O": return (EStarType.MainSeqStar, ESpectrType.O);
-                case "BH": return (EStarType.BlackHole, ESpectrType.X);
-                case "N": return (EStarType.NeutronStar, ESpectrType.X);
-                case "W": return (EStarType.WhiteDwarf, ESpectrType.X);
-                case "RG": return (EStarType.GiantStar, ESpectrType.M);
-                case "YG": return (EStarType.GiantStar, ESpectrType.G);
-                case "WG": return (EStarType.GiantStar, ESpectrType.A);
-                default: return (EStarType.GiantStar, ESpectrType.B);
-            }
+            preferences.Set("sizeBias", o);
         }
 
         /// <summary>Method for getting the maximal number of planets a star can have</summary>
@@ -313,14 +233,14 @@ namespace GalacticScale.Generators
 
         /// <summary>Method for getting a bias for planet size</summary>
         /// <returns></returns>
-        private int GetSizeBias()
+        private int GetPlanetSizeBias()
         {
             return preferences.GetInt("sizeBias", 50);
         }
 
         /// <summary>Method for getting a bias for star's planetary objects count</summary>
         /// <returns>Bias for planet count</returns>
-        private int GetCountBias()
+        private int GetPlanetCountBias()
         {
             return preferences.GetInt("countBias", 50);
         }
