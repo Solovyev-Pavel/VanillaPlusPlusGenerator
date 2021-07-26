@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,8 +27,6 @@ namespace GalacticScale.Generators
         {
             AddUIElements();
             InitPreferences();
-            Config.MinStarCount = 16;
-            Config.MaxStarCount = 96;
         }
 
         /// <summary>Import of generator's preferences</summary>
@@ -40,6 +39,8 @@ namespace GalacticScale.Generators
                 this.preferences.Set(key, preferences[key]);
             }
 
+            Config.MinStarCount = 16;
+            Config.MaxStarCount = 96;
             Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64); ;
         }
 
@@ -50,13 +51,6 @@ namespace GalacticScale.Generators
             return preferences;
         }
 
-        /// <summary>Callback for setting default star count for the cluster</summary>
-        /// <param name="o">Default star count</param>
-        private void DefaultStarCountCallback(Val o)
-        {
-            Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64);
-        }
-
         /// <summary>Generating initial preferences for the generator</summary>
         private void InitPreferences()
         {
@@ -65,7 +59,9 @@ namespace GalacticScale.Generators
             preferences.Set("birthPlanetSize", 200);
             preferences.Set("birthPlanetUnlock", false);
             preferences.Set("birthPlanetSiTi", false);
+            preferences.Set("moreLikelyGasGiantMoons", false);
             preferences.Set("moonsAreSmall", true);
+            preferences.Set("smallGasGiantMoons", false);
             preferences.Set("tidalLockInnerPlanets", false);
             preferences.Set("luminosityBoost", false);
             preferences.Set("minPlanetCount", 1);
@@ -98,7 +94,9 @@ namespace GalacticScale.Generators
             UI.Add("birthPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Starting Planet Size", 100, 200, 400, "birthPlanetSize")));
             UI.Add("birthPlanetUnlock", Options.Add(GSUI.Checkbox("Starting Planet Unlock", false, "birthPlanetUnlock")));
             UI.Add("birthPlanetSiTi", Options.Add(GSUI.Checkbox("Starting planet Si/Ti", false, "birthPlanetSiTi")));
-            UI.Add("moonsAreSmall", Options.Add(GSUI.Checkbox("Moons Are Small", true, "moonsAreSmall")));
+            UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Incread Probability of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
+            UI.Add("moonsAreSmall", Options.Add(GSUI.Checkbox("Moons Are Small", true, SmallMoonsCallback)));
+            UI.Add("smallGasGiantMoons", Options.Add(GSUI.Checkbox("Size Reduction Affect Gas Giant Moons", false, "smallGasGiantMoons")));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
             UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
 
@@ -120,12 +118,34 @@ namespace GalacticScale.Generators
             UI.Add("minPlanetCount", Options.Add(GSUI.Slider("Min Planets/System", 1, 4, 10, "minPlanetCount", MinPlanetCountCallback)));
             UI.Add("maxPlanetCount", Options.Add(GSUI.Slider("Max Planets/System", 1, 6, 10, "maxPlanetCount", MaxPlanetCountCallback)));
             UI.Add("countBias", Options.Add(GSUI.Slider("Planet Count Bias", 0, 50, 100, "sizeBias", CountBiasCallback)));
-            UI.Add("minPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Min planet size", 50, 200, 200, "minPlanetSize", MinPlanetSizeCallback)));
-            UI.Add("maxPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Max planet size", 200, 400, 400, "maxPlanetSize", MaxPlanetSizeCallback)));
+            UI.Add("minPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Min planet size", 100, 200, 400, "minPlanetSize", MinPlanetSizeCallback)));
+            UI.Add("maxPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Max planet size", 100, 200, 400, "maxPlanetSize", MaxPlanetSizeCallback)));
             UI.Add("sizeBias", Options.Add(GSUI.Slider("Planet Size Bias", 0, 50, 100, "sizeBias", PlanetSizeBiasCallback)));
 
             UI.Add("chanceGas", Options.Add(GSUI.Slider("Chance Gas", 10, 20, 50, "chanceGas", GasChanceCallback)));
             UI.Add("chanceMoon", Options.Add(GSUI.Slider("Chance Moon", 10, 20, 80, "chanceMoon", MoonChanceCallback)));
+        }
+
+        /// <summary>Callback for setting default star count for the cluster</summary>
+        /// <param name="o">Default star count</param>
+        private void DefaultStarCountCallback(Val o)
+        {
+            Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64);
+        }
+
+        /// <summary>Callback for small moons property</summary>
+        /// <param name="o">Small moons flag</param>
+        private void SmallMoonsCallback(Val o)
+        {
+            preferences.Set("moonsAreSmall", o);
+            if (o)
+            {
+                UI["smallGasGiantMoons"].Enable();
+            }
+            else
+            {
+                UI["smallGasGiantMoons"].Disable();
+            }
         }
 
         /// <summary>Callback for setting the chance for a planet to be a moon</summary>
@@ -178,22 +198,24 @@ namespace GalacticScale.Generators
         /// <param name="o">Min planet size value</param>
         private void MinPlanetSizeCallback(Val o)
         {
-            var maxSize = preferences.GetFloat("maxPlanetSize");
-            if (maxSize == -1f) maxSize = 400;
-            if (maxSize < o) { o = maxSize; }
             preferences.Set("minPlanetSize", Utils.ParsePlanetSize(o));
-            UI["minPlanetSize"].Set(preferences.GetFloat("minPlanetSize"));
+            var maxSize = preferences.GetFloat("maxPlanetSize", 200);
+            if (maxSize < o)
+            {
+                UI["maxPlanetSize"].Set(o);
+            }
         }
 
         /// <summary>Callback for setting max planet size</summary>
         /// <param name="o">Max planet size value</param>
         private void MaxPlanetSizeCallback(Val o)
         {
-            var minSize = preferences.GetFloat("minPlanetSize");
-            if (minSize == -1f) minSize = 50;
-            if (minSize > o) { o = minSize; }
             preferences.Set("maxPlanetSize", Utils.ParsePlanetSize(o));
-            UI["maxPlanetSize"].Set(preferences.GetFloat("maxPlanetSize"));
+            var minSize = preferences.GetFloat("minPlanetSize", 200);
+            if (minSize > o)
+            {
+                UI["minPlanetSize"].Set(o);
+            }
         }
 
         /// <summary>Callback for planet size bias</summary>

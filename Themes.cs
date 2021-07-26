@@ -63,6 +63,7 @@ namespace GalacticScale.Generators
             var moltenworld = new GSTheme("MoltenWorld", "Molten World", "Lava");
             var redforest = new GSTheme("RedForest", "Red Forest", "OceanicJungle");
             var beach = new GSTheme("Beach", "Beach", "OceanWorld");
+
             beach.VeinSettings = new GSVeinSettings
             {
                 Algorithm = "GS2",

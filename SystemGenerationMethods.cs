@@ -47,13 +47,6 @@ namespace GalacticScale.Generators
 
         // //////////////////////////// METHODS //////////////////////////// //
 
-        private class ProtoPlanet
-        {
-            public bool gas;
-            public readonly List<ProtoPlanet> moons = new List<ProtoPlanet>();
-            public int radius;
-        }
-
         /// <summary>Method for generating planetary objects of a star</summary>
         /// <param name="star">Parent star</param>
         private void GeneratePlanetsForStar(GSStar star)
@@ -62,57 +55,59 @@ namespace GalacticScale.Generators
             var starBodyCount = GetPlanetCount();
             if (starBodyCount == 0) { return; }
             var moonChance = GetMoonChance();
-            var moonCount = 0;
+            bool bGasGiantMoons = preferences.GetBool("moreLikelyGasGiantMoons", false);
 
-            var protos = new List<ProtoPlanet>();
-            var moons = new List<ProtoPlanet>();
+            var firstPlanet = CreateCelestialBody(star, null, GetPlanetIsGasGiant(), false);
+            star.Planets.Add(firstPlanet);
+            int prevPlanet = 0;
 
-            protos.Add(new ProtoPlanet { gas = GetPlanetIsGasGiant(), radius = GetPlanetSize() });
-            if (protos[0].gas) { protos[0].radius = random.Next(80, 161); }
-
-            for (var i = 1; i < starBodyCount; i++)
+            for (int i = 1; i < starBodyCount; i++)
             {
-                if (random.NextPick(moonChance))
+                bool bPrevPlanetIsGasGiant = (star.Planets[prevPlanet].Scale == 10f);
+                bool bAlreadyHasMoons = (star.Planets[prevPlanet].Moons.Count != 0);
+                double dFinalMoonChance = moonChance;
+                if (bPrevPlanetIsGasGiant && bGasGiantMoons && !bAlreadyHasMoons)
                 {
-                    moonCount++;
+                    if (dFinalMoonChance < 0.5) { dFinalMoonChance = 0.8; }
+                    else { dFinalMoonChance = 1.0; }
+                }
+
+                if (random.NextPick(dFinalMoonChance))
+                {
+                    var moon = CreateCelestialBody(star, star.Planets[prevPlanet], false, true);
+                    star.Planets[prevPlanet].Moons.Add(moon);
                 }
                 else
                 {
-                    var p = new ProtoPlanet { gas = GetPlanetIsGasGiant(), radius = GetPlanetSize() };
-                    if (p.gas) { p.radius = random.Next(80, 161); }
-
-                    protos.Add(p);
+                    var planet = CreateCelestialBody(star, null, GetPlanetIsGasGiant(), false);
+                    star.Planets.Add(planet);
+                    ++prevPlanet;
                 }
-            }
-
-            for (var i = 0; i < moonCount; i++)
-            {
-                var randomProto = random.Item(protos);
-                var moon = new ProtoPlanet { gas = false, radius = GetMoonSize(star, randomProto.radius, randomProto.gas) };
-                randomProto.moons.Add(moon);
-                moons.Add(moon);
-            }
-
-            foreach (var proto in protos)
-            {
-                var planet = new GSPlanet(star.Name + "-Planet", null, proto.radius, -1, -1, -1, -1, -1, -1, -1, -1);
-                if (proto.gas) planet.Scale = 10f;
-                else planet.Scale = 1f;
-
-                if (proto.moons.Count > 0) planet.Moons = new GSPlanets();
-                foreach (var moon in proto.moons)
-                {
-                    var planetMoon = new GSPlanet(star.Name + "-Moon", null, moon.radius, -1, -1, -1, -1, -1, -1, -1, -1);
-                    planetMoon.Scale = 1f;
-                    planet.Moons.Add(planetMoon);
-                }
-
-                star.Planets.Add(planet);
             }
 
             CreatePlanetOrbits(star);
             SelectPlanetThemes(star);
             SetPlanetProperties(star);
+        }
+
+        /// <summary>Method to create a celestial body entity</summary>
+        /// <param name="star">Host star of the celestial body</param>
+        /// <param name="host">Host planet for moons</param>
+        /// <param name="bGasGiant">Is celestial body a gas giant</param>
+        /// <param name="bIsMoon">Is celestial body a moon</param>
+        /// <returns>Celestial body entity</returns>
+        private GSPlanet CreateCelestialBody(GSStar star, GSPlanet host, bool bGasGiant, bool bIsMoon)
+        {
+            int radius = bIsMoon ? GetMoonSize(star, host.Radius, (host.Scale == 10f)) : GetPlanetSize();
+            if (bGasGiant) { radius = random.Next(80, 161); }
+
+            string name = bIsMoon ? star.Name + "-Moon" : star.Name + "-Planet";
+
+            var planet = new GSPlanet(name, null, radius, -1, -1, -1, -1, -1, -1, -1, -1);
+            if (bGasGiant) { planet.Scale = 10f; }
+            else { planet.Scale = 1f; }
+
+            return planet;
         }
 
         // ///////////////////// PLANET COUNT & SIZES ////////////////////// //
@@ -152,7 +147,11 @@ namespace GalacticScale.Generators
             {
                 size = trueHostRadius - 20;
             }
-            if (preferences.GetBool("moonsAreSmall", false))
+
+            bool bSmallMoons = preferences.GetBool("moonsAreSmall", false);
+            bool bSmallGasGiantMoons = preferences.GetBool("smallGasGiantMoons", false);
+
+            if (bSmallMoons && (!hostGas || bSmallGasGiantMoons))
             {
                 size /= 2;
             }
