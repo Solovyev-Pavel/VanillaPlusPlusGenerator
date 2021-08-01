@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static GalacticScale.GS2;
+using static GalacticScale.RomanNumbers;
 
 namespace GalacticScale.Generators
 {
@@ -196,7 +197,8 @@ namespace GalacticScale.Generators
                 GSPlanet lastPlanet = birthStar.Planets[birthStar.PlanetCount - 1];
                 float orbitalRadius = lastPlanet.OrbitRadius + Mathf.Max(lastPlanet.SystemRadius + 0.4f, Mathf.Min(sz.coldZoneEdge - sz.temperateZoneEdge, random.NextFloat(0.65f, 0.95f)));
                 var orbitalPeriod = Utils.CalculateOrbitPeriod(orbitalRadius);
-                var gasPlanet = birthStar.Planets.Add(new GSPlanet("Nibiru", "IceGiant", 80, orbitalRadius, random.NextFloat(-20f, 20f), orbitalPeriod, random.NextFloat(0f, 359f), 0f, 180f, 0f, -1f));
+                string name = $"{birthStar.Name} - {roman[birthStar.Planets.Count + 1]}";
+                var gasPlanet = birthStar.Planets.Add(new GSPlanet(name, "IceGiant", 80, orbitalRadius, random.NextFloat(-20f, 20f), orbitalPeriod, random.NextFloat(0f, 359f), 0f, 180f, 0f, -1f));
             //}
         }
 
