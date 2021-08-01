@@ -57,6 +57,7 @@ namespace GalacticScale.Generators
 
                 GSSettings.Stars.Add(star);
                 GeneratePlanetsForStar(star);
+                EnsureProperOrbitalPeriods(star);
             }
             BoostBlueStarLuminosity();
 

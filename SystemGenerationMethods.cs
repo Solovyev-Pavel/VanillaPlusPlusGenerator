@@ -293,6 +293,23 @@ namespace GalacticScale.Generators
             return 0.05f + random.NextFloat(0f, 0.02f);
         }
 
+        /// <summary>Method to ensure all planets/moons of a star have proper orbital periods</summary>
+        /// <param name="star">Target star</param>
+        private void EnsureProperOrbitalPeriods(GSStar star)
+        {
+            foreach (var planet in star.Planets)
+            {
+                if (planet.OrbitalPeriod == 1000f)
+                    planet.OrbitalPeriod = Utils.CalculateOrbitPeriod(planet.OrbitRadius);
+
+                foreach (var moon in planet.Moons)
+                {
+                    if (moon.OrbitalPeriod == 1000f)
+                        moon.OrbitalPeriod = Utils.CalculateOrbitPeriod(moon.OrbitRadius);
+                }
+            }
+        }
+
         // ///////////////////////// PLANET THEMES ///////////////////////// //
 
         /// <summary>Method for setting themes for planetary objects</summary>
