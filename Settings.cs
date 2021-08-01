@@ -89,14 +89,15 @@ namespace GalacticScale.Generators
         /// <summary>Generate UI elements</summary>
         private void AddUIElements()
         {
+            List<string> moonsAreSmallOptions = new List<string>(){ "Disabled", "For Telluric Planets Only", "All Moons Are Small" };
+
             UI.Add("galaxyDensity", Options.Add(GSUI.Slider("Galaxy Density", 1, 5, 9, "galaxyDensity")));
             UI.Add("defaultStarCount", Options.Add(GSUI.Slider("Default StarCount", 16, 64, 96, "defaultStarCount", DefaultStarCountCallback)));
             UI.Add("birthPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Starting Planet Size", 100, 200, 400, "birthPlanetSize")));
             UI.Add("birthPlanetUnlock", Options.Add(GSUI.Checkbox("Starting Planet Unlock", false, "birthPlanetUnlock")));
             UI.Add("birthPlanetSiTi", Options.Add(GSUI.Checkbox("Starting planet Si/Ti", false, "birthPlanetSiTi")));
-            UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Incread Probability of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
-            UI.Add("moonsAreSmall", Options.Add(GSUI.Checkbox("Moons Are Small", true, SmallMoonsCallback)));
-            UI.Add("smallGasGiantMoons", Options.Add(GSUI.Checkbox("Size Reduction Affect Gas Giant Moons", false, "smallGasGiantMoons")));
+            UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Incread Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
+            UI.Add("moonsAreSmall", Options.Add(GSUI.Combobox("Moons Are Small", moonsAreSmallOptions, SmallMoonsCallback, InitializeSmallMoonsComboBox)));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
             UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
 
@@ -133,18 +134,57 @@ namespace GalacticScale.Generators
             Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64);
         }
 
+        /// <summary>Initializer for small moons combo box</summary>
+        private void InitializeSmallMoonsComboBox()
+        {
+            bool bMoonsAreSmall = preferences.GetBool("moonsAreSmall", false);
+            bool bGasGiantMoonsAreSmall = preferences.GetBool("smallGasGiantMoons", false);
+
+            if (!bMoonsAreSmall)
+            {
+                UI["moonsAreSmall"].Set(0); // disabled
+            }
+            else if (!bGasGiantMoonsAreSmall)
+            {
+                UI["moonsAreSmall"].Set(1); // only terrestrial planets' moons are small
+            }
+            else
+            {
+                UI["moonsAreSmall"].Set(2); // all moons are small
+            }
+        }
+
         /// <summary>Callback for small moons property</summary>
         /// <param name="o">Small moons flag</param>
         private void SmallMoonsCallback(Val o)
         {
-            preferences.Set("moonsAreSmall", o);
-            if (o)
+            int val = o;
+            switch (val)
             {
-                UI["smallGasGiantMoons"].Enable();
-            }
-            else
-            {
-                UI["smallGasGiantMoons"].Disable();
+                case 0: // disabled
+                    {
+                        preferences.Set("moonsAreSmall", false);
+                        preferences.Set("smallGasGiantMoons", false);
+                        break;
+                    }
+                case 1: // only terrestrial planets' moons are small
+                    {
+                        preferences.Set("moonsAreSmall", true);
+                        preferences.Set("smallGasGiantMoons", false);
+                        break;
+                    }
+                case 2: // all moons are small
+                    {
+                        preferences.Set("moonsAreSmall", true);
+                        preferences.Set("smallGasGiantMoons", true);
+                        break;
+                    }
+                default:
+                    {
+                        preferences.Set("moonsAreSmall", false);
+                        preferences.Set("smallGasGiantMoons", false);
+                        break;
+                    }
             }
         }
 
