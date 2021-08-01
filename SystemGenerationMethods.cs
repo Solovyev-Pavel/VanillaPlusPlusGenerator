@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static GalacticScale.RomanNumbers;
@@ -68,7 +69,7 @@ namespace GalacticScale.Generators
                 double dFinalMoonChance = moonChance;
                 if (bPrevPlanetIsGasGiant && bGasGiantMoons && !bAlreadyHasMoons)
                 {
-                    if (dFinalMoonChance < 0.5) { dFinalMoonChance = 0.8; }
+                    if (moonChance < 0.5) { dFinalMoonChance = 0.8; }
                     else { dFinalMoonChance = 1.0; }
                 }
 
@@ -98,8 +99,13 @@ namespace GalacticScale.Generators
         /// <returns>Celestial body entity</returns>
         private GSPlanet CreateCelestialBody(GSStar star, GSPlanet host, bool bGasGiant, bool bIsMoon)
         {
-            int radius = bIsMoon ? GetMoonSize(star, host.Radius, (host.Scale == 10f)) : GetPlanetSize();
-            if (bGasGiant) { radius = random.Next(80, 161); }
+            int radius;
+            if (bGasGiant)
+                radius = random.Next(80, 161);
+            else if (bIsMoon)
+                radius = GetMoonSize(host);
+            else
+                radius = GetPlanetSize();
 
             string name = bIsMoon ? star.Name + "-Moon" : star.Name + "-Planet";
 
@@ -131,6 +137,10 @@ namespace GalacticScale.Generators
             var bias = GetPlanetSizeBias();
             int size = ClampedNormalSize(min, max, bias);
             size = Mathf.RoundToInt(size / 10f) * 10; // size step = 10
+
+            if (size < min) { size = min; }
+            if (size > max) { size = max; }
+
             return size;
         }
 
@@ -139,22 +149,24 @@ namespace GalacticScale.Generators
         /// <param name="hostRadius">Radius of parent planet</param>
         /// <param name="hostGas">TRUE if parent planet is a gas giant</param>
         /// <returns>Moon's size</returns>
-        private int GetMoonSize(GSStar star, int hostRadius, bool hostGas)
+        private int GetMoonSize(GSPlanet host)
         {
+            bool bHostIsGasGiant = (host.Scale == 10f);
+            bool bSmallMoons = preferences.GetBool("moonsAreSmall", false);
+            bool bSmallGasGiantMoons = preferences.GetBool("smallGasGiantMoons", false);
+
             int size = GetPlanetSize();
-            int trueHostRadius = hostGas ? hostRadius * 10 : hostRadius;
+            if (bSmallMoons && (!bHostIsGasGiant || bSmallGasGiantMoons))
+            {
+                size /= 2;
+            }
+
+            int trueHostRadius = bHostIsGasGiant ? host.Radius * 10 : host.Radius;
             if (size > trueHostRadius)
             {
                 size = trueHostRadius - 20;
             }
 
-            bool bSmallMoons = preferences.GetBool("moonsAreSmall", false);
-            bool bSmallGasGiantMoons = preferences.GetBool("smallGasGiantMoons", false);
-
-            if (bSmallMoons && (!hostGas || bSmallGasGiantMoons))
-            {
-                size /= 2;
-            }
             return size;
         }
 
@@ -164,6 +176,45 @@ namespace GalacticScale.Generators
         {
             var gasChance = GetGasChanceGiant();
             return random.NextPick(gasChance);
+        }
+
+        /// <summary>Method to ensure proper sizes of star's terrestrial planets</summary>
+        /// <param name="star">Target star</param>
+        private void EnsureProperPlanetSizes(GSStar star)
+        {
+            int min = GetMinPlanetSize();
+            int max = GetMaxPlanetSize();
+            bool bSmallMoons = preferences.GetBool("moonsAreSmall", false);
+            bool bSmallGasGiantMoons = preferences.GetBool("smallGasGiantMoons", false);
+
+            int gasGiantMoonMinSize = (bSmallMoons && bSmallGasGiantMoons) ? min / 2 : min;
+            int gasGiantMoonMaxSize = (bSmallMoons && bSmallGasGiantMoons) ? max / 2 : max;
+            int moonMinSize = (bSmallMoons) ? min / 2 : min;
+            int moonMaxSize = (bSmallMoons) ? max / 2 : max;
+
+            foreach (var planet in star.Planets)
+            {
+                if (planet.GsTheme.ThemeType != EThemeType.Gas)
+                {
+                    if (planet.Radius < min) { planet.Radius = min; }
+                    if (planet.Radius > max) { planet.Radius = max; }
+                }
+
+                foreach (var moon in planet.Moons)
+                {
+                    if (planet.GsTheme.ThemeType == EThemeType.Gas)
+                    {
+                        if (moon.Radius < gasGiantMoonMinSize) { moon.Radius = gasGiantMoonMinSize; }
+                        if (moon.Radius > gasGiantMoonMaxSize) { moon.Radius = gasGiantMoonMaxSize; }
+                    }
+                    else
+                    {
+                        int trueMoonMaxSize = Math.Min(planet.Radius, moonMaxSize);
+                        if (moon.Radius < moonMinSize) { moon.Radius = moonMinSize; }
+                        if (moon.Radius > trueMoonMaxSize) { moon.Radius = trueMoonMaxSize; }
+                    }
+                }
+            }
         }
 
         // ///////////////////////// PLANET ORBITS ///////////////////////// //
@@ -380,5 +431,28 @@ namespace GalacticScale.Generators
             }
         }
 
+        /// <summary>Method to ensure black holes and neutron stars always have unipolar magnets</summary>
+        /// <param name="star">Target "star"</param>
+        private void EnforceUnipolarMagnets(GSStar star)
+        {
+            if (!SystemHasUnipolarMagents(star))
+            {
+                star.TelluricBodies[0].GsTheme.VeinSettings.Algorithm = "GS2";
+                star.TelluricBodies[0].GsTheme.CustomGeneration = true;
+                star.TelluricBodies[0].GsTheme.VeinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Mag, 1, 2, 0.3f, 0.3f, 5, 10, true));
+            }
+        }
+
+        /// <summary>Method to check that there are unipolar magnets in the system</summary>
+        /// <param name="star">Target "star"</param>
+        /// <returns>TRUE if there are unipolar magnets in the target system, FALSE - otherwise</returns>
+        private bool SystemHasUnipolarMagents(GSStar star)
+        {
+            foreach (var p in star.Bodies)
+            {
+                if (p.GsTheme.VeinSettings.VeinTypes.ContainsVein(EVeinType.Mag)) { return true; }
+            }
+            return false;
+        }
     }
 }

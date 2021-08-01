@@ -50,15 +50,25 @@ namespace GalacticScale.Generators
                 var starType = ChooseStarType();
                 var star = new GSStar(random.Next(), SystemNames.GetName(i), starType.spectr, starType.type, new GSPlanets());
 
+                GSSettings.Stars.Add(star);
+                GeneratePlanetsForStar(star);
+                //EnsureProperPlanetSizes(star);
+            }
+            BoostBlueStarLuminosity();
+
+            // manage black hole and neutron star systems
+            foreach (var star in GSSettings.Stars)
+            {
                 if (star.Type == EStarType.BlackHole)
                 {
                     star.radius *= 0.33f;
                 }
 
-                GSSettings.Stars.Add(star);
-                GeneratePlanetsForStar(star);
+                if (star.Type == EStarType.BlackHole || star.Type == EStarType.NeutronStar)
+                {
+                    EnforceUnipolarMagnets(star);
+                }
             }
-            BoostBlueStarLuminosity();
 
             // manage birth planet
             Log("Picking BirthPlanet");
