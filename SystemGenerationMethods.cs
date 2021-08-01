@@ -59,12 +59,12 @@ namespace GalacticScale.Generators
 
             var firstPlanet = CreateCelestialBody(star, null, GetPlanetIsGasGiant(), false);
             star.Planets.Add(firstPlanet);
-            int prevPlanet = 0;
+            int prevPlanetIndex = 0;
 
             for (int i = 1; i < starBodyCount; i++)
             {
-                bool bPrevPlanetIsGasGiant = (star.Planets[prevPlanet].Scale == 10f);
-                bool bAlreadyHasMoons = (star.Planets[prevPlanet].Moons.Count != 0);
+                bool bPrevPlanetIsGasGiant = (star.Planets[prevPlanetIndex].Scale == 10f);
+                bool bAlreadyHasMoons = (star.Planets[prevPlanetIndex].Moons.Count > 0);
                 double dFinalMoonChance = moonChance;
                 if (bPrevPlanetIsGasGiant && bGasGiantMoons && !bAlreadyHasMoons)
                 {
@@ -74,14 +74,14 @@ namespace GalacticScale.Generators
 
                 if (random.NextPick(dFinalMoonChance))
                 {
-                    var moon = CreateCelestialBody(star, star.Planets[prevPlanet], false, true);
-                    star.Planets[prevPlanet].Moons.Add(moon);
+                    var moon = CreateCelestialBody(star, star.Planets[prevPlanetIndex], false, true);
+                    star.Planets[prevPlanetIndex].Moons.Add(moon);
                 }
                 else
                 {
                     var planet = CreateCelestialBody(star, null, GetPlanetIsGasGiant(), false);
                     star.Planets.Add(planet);
-                    ++prevPlanet;
+                    ++prevPlanetIndex;
                 }
             }
 
