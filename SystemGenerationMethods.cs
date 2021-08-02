@@ -397,5 +397,29 @@ namespace GalacticScale.Generators
             }
         }
 
+
+        /// <summary>Method to ensure black holes and neutron stars always have unipolar magnets</summary>
+        /// <param name="star">Target "star"</param>
+        private void EnforceUnipolarMagnets(GSStar star)
+        {
+            if (!SystemHasUnipolarMagents(star))
+            {
+                var planet = star.TelluricBodies[0];
+                planet.veinSettings = planet.GsTheme.VeinSettings.Clone();
+                planet.veinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Mag, 1, 2, 0.3f, 0.3f, 5, 10, true));
+            }
+        }
+
+        /// <summary>Method to check that there are unipolar magnets in the system</summary>
+        /// <param name="star">Target "star"</param>
+        /// <returns>TRUE if there are unipolar magnets in the target system, FALSE - otherwise</returns>
+        private bool SystemHasUnipolarMagents(GSStar star)
+        {
+            foreach (var p in star.Bodies)
+            {
+                if (p.GsTheme.VeinSettings.VeinTypes.ContainsVein(EVeinType.Mag)) { return true; }
+            }
+            return false;
+        }
     }
 }
