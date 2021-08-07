@@ -59,6 +59,7 @@ namespace GalacticScale.Generators
             preferences.Set("birthPlanetSize", 200);
             preferences.Set("birthPlanetUnlock", false);
             preferences.Set("birthPlanetSiTi", false);
+            preferences.Set("hugeGasGiants", false);
             preferences.Set("moreLikelyGasGiantMoons", false);
             preferences.Set("moonsAreSmall", true);
             preferences.Set("smallGasGiantMoons", false);
@@ -93,28 +94,35 @@ namespace GalacticScale.Generators
 
             UI.Add("galaxyDensity", Options.Add(GSUI.Slider("Galaxy Density", 1, 5, 9, "galaxyDensity")));
             UI.Add("defaultStarCount", Options.Add(GSUI.Slider("Default StarCount", 16, 64, 96, "defaultStarCount", DefaultStarCountCallback)));
+
             UI.Add("birthPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Starting Planet Size", 100, 200, 400, "birthPlanetSize")));
             UI.Add("birthPlanetUnlock", Options.Add(GSUI.Checkbox("Starting Planet Unlock", false, "birthPlanetUnlock")));
             UI.Add("birthPlanetSiTi", Options.Add(GSUI.Checkbox("Starting planet Si/Ti", false, "birthPlanetSiTi")));
+
+            UI.Add("hugeGasGiants", Options.Add(GSUI.Checkbox("Variable Size Gas Giants", false, "hugeGasGiants")));
             UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Incread Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
+
             UI.Add("moonsAreSmall", Options.Add(GSUI.Combobox("Moons Are Small", moonsAreSmallOptions, SmallMoonsCallback, InitializeSmallMoonsComboBox)));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
             UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
 
-            UI.Add("freqK", Options.Add(GSUI.Slider("Freq. Type K", 0, 40, 100, "freqK")));
-            UI.Add("freqM", Options.Add(GSUI.Slider("Freq. Type M", 0, 50, 100, "freqM")));
-            UI.Add("freqG", Options.Add(GSUI.Slider("Freq. Type G", 0, 30, 100, "freqG")));
-            UI.Add("freqF", Options.Add(GSUI.Slider("Freq. Type F", 0, 25, 100, "freqF")));
-            UI.Add("freqA", Options.Add(GSUI.Slider("Freq. Type A", 0, 10, 100, "freqA")));
-            UI.Add("freqB", Options.Add(GSUI.Slider("Freq. Type B", 0, 4, 100, "freqB")));
-            UI.Add("freqO", Options.Add(GSUI.Slider("Freq. Type O", 0, 2, 100, "freqO")));
-            UI.Add("freqBH", Options.Add(GSUI.Slider("Freq. BlackHole", 0, 1, 100, "freqBH")));
-            UI.Add("freqN", Options.Add(GSUI.Slider("Freq. Neutron", 0, 1, 100, "freqN")));
-            UI.Add("freqW", Options.Add(GSUI.Slider("Freq. WhiteDwarf", 0, 2, 100, "freqW")));
-            UI.Add("freqRG", Options.Add(GSUI.Slider("Freq. Red Giant", 0, 1, 100, "freqRG")));
-            UI.Add("freqYG", Options.Add(GSUI.Slider("Freq. Yellow Giant", 0, 1, 100, "freqYG")));
-            UI.Add("freqWG", Options.Add(GSUI.Slider("Freq. White Giant", 0, 1, 100, "freqWG")));
-            UI.Add("freqBG", Options.Add(GSUI.Slider("Freq. Blue Giant", 0, 1, 100, "freqBG")));
+            // star types frequency settings group
+            var starFreqOptions = new GSOptions();
+            UI.Add("freqK", starFreqOptions.Add(GSUI.Slider("Freq. Type K", 0, 40, 100, "freqK")));
+            UI.Add("freqM", starFreqOptions.Add(GSUI.Slider("Freq. Type M", 0, 50, 100, "freqM")));
+            UI.Add("freqG", starFreqOptions.Add(GSUI.Slider("Freq. Type G", 0, 30, 100, "freqG")));
+            UI.Add("freqF", starFreqOptions.Add(GSUI.Slider("Freq. Type F", 0, 25, 100, "freqF")));
+            UI.Add("freqA", starFreqOptions.Add(GSUI.Slider("Freq. Type A", 0, 10, 100, "freqA")));
+            UI.Add("freqB", starFreqOptions.Add(GSUI.Slider("Freq. Type B", 0, 4, 100, "freqB")));
+            UI.Add("freqO", starFreqOptions.Add(GSUI.Slider("Freq. Type O", 0, 2, 100, "freqO")));
+            UI.Add("freqBH", starFreqOptions.Add(GSUI.Slider("Freq. BlackHole", 0, 1, 100, "freqBH")));
+            UI.Add("freqN", starFreqOptions.Add(GSUI.Slider("Freq. Neutron", 0, 1, 100, "freqN")));
+            UI.Add("freqW", starFreqOptions.Add(GSUI.Slider("Freq. WhiteDwarf", 0, 2, 100, "freqW")));
+            UI.Add("freqRG", starFreqOptions.Add(GSUI.Slider("Freq. Red Giant", 0, 1, 100, "freqRG")));
+            UI.Add("freqYG", starFreqOptions.Add(GSUI.Slider("Freq. Yellow Giant", 0, 1, 100, "freqYG")));
+            UI.Add("freqWG", starFreqOptions.Add(GSUI.Slider("Freq. White Giant", 0, 1, 100, "freqWG")));
+            UI.Add("freqBG", starFreqOptions.Add(GSUI.Slider("Freq. Blue Giant", 0, 1, 100, "freqBG")));
+            Options.Add(GSUI.Group("Star Types Frequencies", starFreqOptions, "Settings that determine frequencies of various star types in the cluster"));
 
             UI.Add("minPlanetCount", Options.Add(GSUI.Slider("Min Planets/System", 1, 4, 10, "minPlanetCount", MinPlanetCountCallback)));
             UI.Add("maxPlanetCount", Options.Add(GSUI.Slider("Max Planets/System", 1, 6, 10, "maxPlanetCount", MaxPlanetCountCallback)));
