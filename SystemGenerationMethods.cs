@@ -99,7 +99,14 @@ namespace GalacticScale.Generators
         private GSPlanet CreateCelestialBody(GSStar star, GSPlanet host, bool bGasGiant, bool bIsMoon)
         {
             int radius = bIsMoon ? GetMoonSize(star, host.Radius, (host.Scale == 10f)) : GetPlanetSize();
-            if (bGasGiant) { radius = random.Next(80, 161); }
+            if (bGasGiant)
+            {
+                bool bHugeGasGiants = preferences.GetBool("hugeGasGiants", false);
+                if (bHugeGasGiants)
+                    radius = random.Next(20, 41) * 4; // 800 + 40N final size
+                else
+                    radius = 80; // 800 always
+            }
 
             string name = bIsMoon ? star.Name + "-Moon" : star.Name + "-Planet";
 
@@ -145,7 +152,7 @@ namespace GalacticScale.Generators
             int trueHostRadius = hostGas ? hostRadius * 10 : hostRadius;
             if (size > trueHostRadius)
             {
-                size = trueHostRadius - 20;
+                size = trueHostRadius;
             }
 
             bool bSmallMoons = preferences.GetBool("moonsAreSmall", false);
@@ -397,7 +404,6 @@ namespace GalacticScale.Generators
             }
         }
 
-
         /// <summary>Method to ensure black holes and neutron stars always have unipolar magnets</summary>
         /// <param name="star">Target "star"</param>
         private void EnforceUnipolarMagnets(GSStar star)
@@ -405,6 +411,7 @@ namespace GalacticScale.Generators
             if (!SystemHasUnipolarMagents(star))
             {
                 var planet = star.TelluricBodies[0];
+                Log($">>> Adding unipolar magnets to {planet.Name}");
                 planet.veinSettings = planet.GsTheme.VeinSettings.Clone();
                 planet.veinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Mag, 1, 2, 0.3f, 0.3f, 5, 10, true));
             }
