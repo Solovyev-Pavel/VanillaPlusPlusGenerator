@@ -189,11 +189,13 @@ namespace GalacticScale.Generators
                     else
                     {
                         var moon = CreateCelestialBody(star, planet, true, true);
+                        moon.Name = planet.Name + " - " + moonLetters[0];
                         moon.OrbitRadius = GetMoonOrbit();
                         moon.OrbitalPeriod = Utils.CalculateOrbitPeriod(moon.OrbitRadius);
 
                         planet.Moons.Add(moon);
                         birthPlanet = moon;
+                        GSSettings.BirthPlanetName = birthPlanet.Name;
                         birthPlanetIsMoon = true;
                         birthPlanetHost = planet;
                         planet = moon;
