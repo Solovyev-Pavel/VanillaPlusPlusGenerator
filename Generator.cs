@@ -44,8 +44,11 @@ namespace GalacticScale.Generators
             SetGalaxyDensity(preferences.GetInt("galaxyDensity", 5));
             random = new GS2.Random(GSSettings.Seed);
             CalculateFrequencies();
+
             Log("Generating Stars");
-            for (var i = 0; i < starCount; i++)
+
+            GenerateStartingSystem();
+            for (var i = 1; i < starCount; i++)
             {
                 var starType = ChooseStarType();
                 var star = new GSStar(random.Next(), SystemNames.GetName(i), starType.spectr, starType.type, new GSPlanets());
@@ -54,37 +57,20 @@ namespace GalacticScale.Generators
                 GeneratePlanetsForStar(star);
                 EnsureProperOrbitalPeriods(star);
             }
-            BoostBlueStarLuminosity();
 
+            BoostBlueStarLuminosity();
             foreach (var star in GSSettings.Stars)
             {
                 if (star.Type == EStarType.BlackHole)
                 {
                     star.radius *= 0.33f;
-                    //EnforceUnipolarMagnets(star);
+                    EnforceUnipolarMagnets(star);
                 }
-                //else if (star.Type == EStarType.NeutronStar)
-                //{
-                //    EnforceUnipolarMagnets(star);
-                //}
+                else if (star.Type == EStarType.NeutronStar)
+                {
+                    EnforceUnipolarMagnets(star);
+                }
             }
-
-            // manage birth planet
-            Log("Picking BirthPlanet");
-            PickNewBirthPlanet();
-            Log("Birthplanet Picked");
-            Log((birthPlanet != null).ToString());
-            GSSettings.BirthPlanetName = birthPlanet.Name;
-            Log("BirthPlanet Set");
-
-            SetBirthPlanetTheme();
-            SetBirthPlanetSize();
-            EnsureBirthPlanetResources();
-
-            EnsureProperStartingStar();
-            EnsureBirthSystemBodies();
-            EnsureBirthSystemHasTi();
-
             Log("End");
         }
 
@@ -123,6 +109,5 @@ namespace GalacticScale.Generators
             //Warn($"ClampedNormal min:{min} max:{max} bias:{bias} range:{range} average:{average} sdHigh:{sdHigh} sdLow:{sdLow} sd:{sd} fResult:{fResult} result:{result}");
             return result;
         }
-
-    }
+   }
 }

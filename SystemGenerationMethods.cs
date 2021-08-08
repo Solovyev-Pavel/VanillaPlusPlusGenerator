@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using static GalacticScale.RomanNumbers;
 using static GalacticScale.GS2;
@@ -45,15 +45,185 @@ namespace GalacticScale.Generators
             public float frozenZoneEdge;
         };
 
+        // ///////////////////// HOME SYSTEM GENERATION //////////////////// //
+
+        /// <summary>Method for generating the starting system</summary>
+        private void GenerateStartingSystem()
+        {
+            Log("Generating staring system");
+            // generate random starting star, exclude black holes, neutron stars and white dwarfs
+            var starType = ChooseStarType();
+            if (starType.spectr == ESpectrType.X)
+            {
+                starType.spectr = ESpectrType.G;
+                starType.type = EStarType.MainSeqStar;
+            }
+
+            // user-preferred starting star type
+            var requestedType = preferences.GetString("startingSystemType", "Random");
+            if (requestedType == "M")
+            {
+                starType.spectr = ESpectrType.M;
+                starType.type = EStarType.MainSeqStar;
+            }
+            else if (requestedType == "K")
+            {
+                starType.spectr = ESpectrType.K;
+                starType.type = EStarType.MainSeqStar;
+            }
+            else if (requestedType == "G")
+            {
+                starType.spectr = ESpectrType.G;
+                starType.type = EStarType.MainSeqStar;
+            }
+            else if (requestedType == "F")
+            {
+                starType.spectr = ESpectrType.F;
+                starType.type = EStarType.MainSeqStar;
+            }
+            else if (requestedType == "A")
+            {
+                starType.spectr = ESpectrType.A;
+                starType.type = EStarType.MainSeqStar;
+            }
+            else if (requestedType == "B")
+            {
+                starType.spectr = ESpectrType.B;
+                starType.type = EStarType.MainSeqStar;
+            }
+            else if (requestedType == "O")
+            {
+                starType.spectr = ESpectrType.O;
+                starType.type = EStarType.MainSeqStar;
+            }
+            else if (requestedType == "RedGiant")
+            {
+                starType.spectr = ESpectrType.K;
+                starType.type = EStarType.GiantStar;
+            }
+            else if (requestedType == "YellowGiant")
+            {
+                starType.spectr = ESpectrType.G;
+                starType.type = EStarType.GiantStar;
+            }
+            else if (requestedType == "WhiteGiant")
+            {
+                starType.spectr = ESpectrType.A;
+                starType.type = EStarType.GiantStar;
+            }
+            else if (requestedType == "BlueGiant")
+            {
+                starType.spectr = ESpectrType.O;
+                starType.type = EStarType.GiantStar;
+            }
+
+            var star = new GSStar(random.Next(), SystemNames.GetName(0), starType.spectr, starType.type, new GSPlanets());
+            GSSettings.Stars.Add(star);
+            birthStar = star;
+
+            int planetCount = GetPlanetCount();
+            if (planetCount < 3) { planetCount = 3; }
+            GeneratePlanetsForStar(birthStar, planetCount);
+
+            // find a habitable planet in the system
+            FindBirthPlanet(birthStar);
+
+            // ensure all bodies have proper orbital periods
+            EnsureProperOrbitalPeriods(star);
+
+            // adjust starting system
+            SetBirthPlanetTheme();
+            SetBirthPlanetSize();
+            EnsureBirthPlanetResources();
+            EnsureBirthSystemBodies();
+            EnsureBirthSystemHasTi();
+
+            Log($"Finished generating starting system. Starting system is {birthStar.Name}");
+        }
+
+        /// <summary>Method for determining staring planet. Or creating one if system has none</summary>
+        /// <param name="star">Target star</param>
+        private void FindBirthPlanet(GSStar star)
+        {
+            // look for a habitable planet or moon
+            birthPlanet = null;
+            foreach (var planet in birthStar.Planets)
+            {
+                if (planet.IsHabitable)
+                {
+                    birthPlanet = planet;
+                    GSSettings.BirthPlanetName = birthPlanet.Name;
+                    birthPlanetIsMoon = false;
+                    birthPlanetHost = null;
+                    return;
+                }
+
+                foreach (var moon in planet.Moons)
+                {
+                    if (moon.IsHabitable)
+                    {
+                        birthPlanet = moon;
+                        GSSettings.BirthPlanetName = birthPlanet.Name;
+                        birthPlanetIsMoon = true;
+                        birthPlanetHost = planet;
+                        return;
+                    }
+                }
+            }
+
+            // no habitable planets or moons in the system, we need to make one
+            if (birthPlanet == null)
+            {
+                Log("Starting system generated with no habitable planets. Creating one by overwriting an existing planet.");
+
+                var index = (star.PlanetCount + 1) / 2;
+                var planet = star.Planets[index];
+
+                // if this is a gas giant, try one of its moons
+                if (planet.Scale == 10f)
+                {
+                    if (planet.MoonCount > 0)
+                    {
+                        planet = planet.Moons[random.Next(planet.MoonCount)];
+                    }
+                    else
+                    {
+                        var moon = CreateCelestialBody(star, planet, true, true);
+                        moon.OrbitRadius = GetMoonOrbit();
+                        moon.OrbitalPeriod = Utils.CalculateOrbitPeriod(moon.OrbitRadius);
+
+                        planet.Moons.Add(moon);
+                        birthPlanet = moon;
+                        birthPlanetIsMoon = true;
+                        birthPlanetHost = planet;
+                        planet = moon;
+                    }
+                }
+
+                var themeNames = GSSettings.ThemeLibrary.Habitable;
+                var themeName = themeNames[random.Next(themeNames.Count)];
+                planet.Theme = themeName;
+
+                Log($"Staring planet is {planet.Name} of type {themeName}");
+            }
+        }
+
         // //////////////////////////// METHODS //////////////////////////// //
 
         /// <summary>Method for generating planetary objects of a star</summary>
         /// <param name="star">Parent star</param>
         private void GeneratePlanetsForStar(GSStar star)
         {
+            int planetCount = GetPlanetCount(); // always 1 or more
+            GeneratePlanetsForStar(star, planetCount);
+        }
+
+        /// <summary>Method for generating planetary objects of a star</summary>
+        /// <param name="star">Parent star</param>
+        /// <param name="planetCount">Number of planetary objects around the star</param>
+        private void GeneratePlanetsForStar(GSStar star, int planetCount)
+        {
             star.Planets = new GSPlanets();
-            var starBodyCount = GetPlanetCount();
-            if (starBodyCount == 0) { return; }
             var moonChance = GetMoonChance();
             bool bGasGiantMoons = preferences.GetBool("moreLikelyGasGiantMoons", false);
 
@@ -61,7 +231,7 @@ namespace GalacticScale.Generators
             star.Planets.Add(firstPlanet);
             int prevPlanetIndex = 0;
 
-            for (int i = 1; i < starBodyCount; i++)
+            for (int i = 1; i < planetCount; i++)
             {
                 bool bPrevPlanetIsGasGiant = (star.Planets[prevPlanetIndex].Scale == 10f);
                 bool bAlreadyHasMoons = (star.Planets[prevPlanetIndex].Moons.Count > 0);
@@ -98,7 +268,7 @@ namespace GalacticScale.Generators
         /// <returns>Celestial body entity</returns>
         private GSPlanet CreateCelestialBody(GSStar star, GSPlanet host, bool bGasGiant, bool bIsMoon)
         {
-            int radius = bIsMoon ? GetMoonSize(star, host.Radius, (host.Scale == 10f)) : GetPlanetSize();
+            int radius = bIsMoon ? GetMoonSize(host.Radius, (host.Scale == 10f)) : GetPlanetSize();
             if (bGasGiant)
             {
                 bool bHugeGasGiants = preferences.GetBool("hugeGasGiants", false);
@@ -123,8 +293,8 @@ namespace GalacticScale.Generators
         /// <returns>Number of planets</returns>
         private int GetPlanetCount()
         {
-            var min = GetMinPlanetCount();
-            var max = GetMaxPlanetCount();
+            var min = Math.Max(GetMinPlanetCount(), 1);
+            var max = Math.Max(GetMaxPlanetCount(), 1);
             var result = ClampedNormal(min, max, GetPlanetCountBias());
             return result;
         }
@@ -142,11 +312,10 @@ namespace GalacticScale.Generators
         }
 
         /// <summary>Method for generating moon's size</summary>
-        /// <param name="star">Parent star</param>
         /// <param name="hostRadius">Radius of parent planet</param>
         /// <param name="hostGas">TRUE if parent planet is a gas giant</param>
         /// <returns>Moon's size</returns>
-        private int GetMoonSize(GSStar star, int hostRadius, bool hostGas)
+        private int GetMoonSize(int hostRadius, bool hostGas)
         {
             int size = GetPlanetSize();
             int trueHostRadius = hostGas ? hostRadius * 10 : hostRadius;
@@ -383,7 +552,33 @@ namespace GalacticScale.Generators
                 }
             }
         }
-        
+
+        /// <summary>Method to ensure black holes and neutron stars always have unipolar magnets</summary>
+        /// <param name="star">Target "star"</param>
+        private void EnforceUnipolarMagnets(GSStar star)
+        {
+            if (!SystemHasUnipolarMagents(star))
+            {
+                var planet = star.TelluricBodies[0];
+                planet.veinSettings = planet.GsTheme.VeinSettings.Clone();
+                planet.veinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Mag, 1, 2, 0.3f, 0.3f, 5, 10, true));
+            }
+        }
+
+        /// <summary>Method to check that there are unipolar magnets in the system</summary>
+        /// <param name="star">Target "star"</param>
+        /// <returns>TRUE if there are unipolar magnets in the target system, FALSE - otherwise</returns>
+        private bool SystemHasUnipolarMagents(GSStar star)
+        {
+            foreach (var p in star.Bodies)
+            {
+                if (p.GsTheme.VeinSettings.VeinTypes.ContainsVein(EVeinType.Mag)) { return true; }
+            }
+            return false;
+        }
+
+        // //////////////////////// VARIOUS METHODS //////////////////////// //
+
         /// <summary>Method to apply luminosity boost to blue / white stars</summary>
         private void BoostBlueStarLuminosity()
         {
@@ -402,31 +597,6 @@ namespace GalacticScale.Generators
                     }
                 }
             }
-        }
-
-        /// <summary>Method to ensure black holes and neutron stars always have unipolar magnets</summary>
-        /// <param name="star">Target "star"</param>
-        private void EnforceUnipolarMagnets(GSStar star)
-        {
-            if (!SystemHasUnipolarMagents(star))
-            {
-                var planet = star.TelluricBodies[0];
-                Log($">>> Adding unipolar magnets to {planet.Name}");
-                planet.veinSettings = planet.GsTheme.VeinSettings.Clone();
-                planet.veinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Mag, 1, 2, 0.3f, 0.3f, 5, 10, true));
-            }
-        }
-
-        /// <summary>Method to check that there are unipolar magnets in the system</summary>
-        /// <param name="star">Target "star"</param>
-        /// <returns>TRUE if there are unipolar magnets in the target system, FALSE - otherwise</returns>
-        private bool SystemHasUnipolarMagents(GSStar star)
-        {
-            foreach (var p in star.Bodies)
-            {
-                if (p.GsTheme.VeinSettings.VeinTypes.ContainsVein(EVeinType.Mag)) { return true; }
-            }
-            return false;
         }
     }
 }

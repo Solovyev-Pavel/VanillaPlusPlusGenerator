@@ -56,6 +56,7 @@ namespace GalacticScale.Generators
         {
             preferences.Set("galaxyDensity", 5);
             preferences.Set("defaultStarCount", 64);
+            preferences.Set("startingSystemType", "Random");
             preferences.Set("birthPlanetSize", 200);
             preferences.Set("birthPlanetUnlock", false);
             preferences.Set("birthPlanetSiTi", false);
@@ -91,20 +92,30 @@ namespace GalacticScale.Generators
         private void AddUIElements()
         {
             List<string> moonsAreSmallOptions = new List<string>(){ "Disabled", "For Telluric Planets Only", "All Moons Are Small" };
+            List<string> starTypeOptions = new List<string>() { "Random", "M-class", "K-class", "G-class", "F-class", "A-class",
+                                                                "B-class", "O-class", "Red Giant", "Yellow Giant", "White Giant", "Blue Giant" };
 
             UI.Add("galaxyDensity", Options.Add(GSUI.Slider("Galaxy Density", 1, 5, 9, "galaxyDensity")));
             UI.Add("defaultStarCount", Options.Add(GSUI.Slider("Default StarCount", 16, 64, 96, "defaultStarCount", DefaultStarCountCallback)));
 
+            UI.Add("startingSystemType", Options.Add(GSUI.Combobox("Starting System Star Type", starTypeOptions, StartingStarTypeCallback, InitializeStartingStarTypeComboBox)));
             UI.Add("birthPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Starting Planet Size", 100, 200, 400, "birthPlanetSize")));
             UI.Add("birthPlanetUnlock", Options.Add(GSUI.Checkbox("Starting Planet Unlock", false, "birthPlanetUnlock")));
-            UI.Add("birthPlanetSiTi", Options.Add(GSUI.Checkbox("Starting planet Si/Ti", false, "birthPlanetSiTi")));
+            UI.Add("birthPlanetSiTi", Options.Add(GSUI.Checkbox("Starting Planet Si/Ti", false, "birthPlanetSiTi")));
+
+            Options.Add(GSUI.Spacer());
+            Options.Add(GSUI.Separator());
+            Options.Add(GSUI.Spacer());
 
             UI.Add("hugeGasGiants", Options.Add(GSUI.Checkbox("Variable Size Gas Giants", false, "hugeGasGiants")));
             UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Incread Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
-
             UI.Add("moonsAreSmall", Options.Add(GSUI.Combobox("Moons Are Small", moonsAreSmallOptions, SmallMoonsCallback, InitializeSmallMoonsComboBox)));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
             UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
+
+            Options.Add(GSUI.Spacer());
+            Options.Add(GSUI.Separator());
+            Options.Add(GSUI.Spacer());
 
             // star types frequency settings group
             var starFreqOptions = new GSOptions();
@@ -124,6 +135,10 @@ namespace GalacticScale.Generators
             UI.Add("freqBG", starFreqOptions.Add(GSUI.Slider("Freq. Blue Giant", 0, 1, 100, "freqBG")));
             Options.Add(GSUI.Group("Star Types Frequencies", starFreqOptions, "Settings that determine frequencies of various star types in the cluster"));
 
+            Options.Add(GSUI.Spacer());
+            Options.Add(GSUI.Separator());
+            Options.Add(GSUI.Spacer());
+
             UI.Add("minPlanetCount", Options.Add(GSUI.Slider("Min Planets/System", 1, 4, 10, "minPlanetCount", MinPlanetCountCallback)));
             UI.Add("maxPlanetCount", Options.Add(GSUI.Slider("Max Planets/System", 1, 6, 10, "maxPlanetCount", MaxPlanetCountCallback)));
             UI.Add("countBias", Options.Add(GSUI.Slider("Planet Count Bias", 0, 50, 100, "sizeBias", CountBiasCallback)));
@@ -140,6 +155,49 @@ namespace GalacticScale.Generators
         private void DefaultStarCountCallback(Val o)
         {
             Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64);
+        }
+
+        /// <summary>Initializer for small moons combo box</summary>
+        private void InitializeStartingStarTypeComboBox()
+        {
+            string startingStarType = preferences.Get("startingSystemType");
+            if (startingStarType == "Random") { UI["startingSystemType"].Set(0); }
+            else if (startingStarType == "M") { UI["startingSystemType"].Set(1); }
+            else if (startingStarType == "K") { UI["startingSystemType"].Set(2); }
+            else if (startingStarType == "G") { UI["startingSystemType"].Set(3); }
+            else if (startingStarType == "F") { UI["startingSystemType"].Set(4); }
+            else if (startingStarType == "A") { UI["startingSystemType"].Set(5); }
+            else if (startingStarType == "B") { UI["startingSystemType"].Set(6); }
+            else if (startingStarType == "O") { UI["startingSystemType"].Set(7); }
+            else if (startingStarType == "RedGiant") { UI["startingSystemType"].Set(8); }
+            else if (startingStarType == "YellowGiant") { UI["startingSystemType"].Set(9); }
+            else if (startingStarType == "WhiteGiant") { UI["startingSystemType"].Set(10); }
+            else if (startingStarType == "BlueGiant") { UI["startingSystemType"].Set(11); }
+            else { UI["startingSystemType"].Set(3); }
+
+        }
+
+        /// <summary>Callback for changing starting star type</summary>
+        /// <param name="o">Starting star type value</param>
+        private void StartingStarTypeCallback(Val o)
+        {
+            int val = o;
+            switch (val)
+            {
+                case 0: preferences.Set("startingSystemType", "Random"); break;
+                case 1: preferences.Set("startingSystemType", "M"); break;
+                case 2: preferences.Set("startingSystemType", "K"); break;
+                case 3: preferences.Set("startingSystemType", "G"); break;
+                case 4: preferences.Set("startingSystemType", "F"); break;
+                case 5: preferences.Set("startingSystemType", "A"); break;
+                case 6: preferences.Set("startingSystemType", "B"); break;
+                case 7: preferences.Set("startingSystemType", "O"); break;
+                case 8: preferences.Set("startingSystemType", "RedGiant"); break;
+                case 9: preferences.Set("startingSystemType", "YellowGiant"); break;
+                case 10: preferences.Set("startingSystemType", "WhiteGiant"); break;
+                case 11: preferences.Set("startingSystemType", "BlueGiant"); break;
+                default: preferences.Set("startingSystemType", "G"); break;
+            }
         }
 
         /// <summary>Initializer for small moons combo box</summary>

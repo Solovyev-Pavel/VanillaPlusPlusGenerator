@@ -10,107 +10,7 @@ namespace GalacticScale.Generators
     public partial class VanillaPlusPlusGenerator : iConfigurableGenerator
     {
 
-        // ////////////////////////// HOME PLANET ////////////////////////// //
-
-        /// <summary>Method for picking a different starting planet in case original is not valid</summary>
-        private void PickNewBirthPlanet()
-        {
-            if (GSSettings.StarCount == 0)
-                Error("Cannot pick birth planet as there are 0 generated stars");
-
-            var HabitablePlanets = GSSettings.Stars.HabitablePlanets;
-            if (HabitablePlanets.Count == 1)
-            {
-                birthPlanet = HabitablePlanets[0];
-                birthStar = GetGSStar(birthPlanet);
-                if (IsPlanetOfStar(birthStar, birthPlanet))
-                {
-                    birthPlanetHost = null;
-                    Log($"Selected only habitable planet {birthPlanet.Name} as planet of {birthStar.Name}");
-                    return;
-                }
-
-                foreach (var planet in birthStar.Planets)
-                {
-                    foreach (var moon in planet.Moons)
-                    {
-                        if (moon == birthPlanet)
-                        {
-                            birthPlanetHost = planet;
-                            Log($"Selected only habitable planet {birthPlanet.Name} as moon of {birthStar.Name}");
-                            return;
-                        }
-
-                        if (IsMoonOfPlanet(moon, birthPlanet))
-                        {
-                            birthPlanetHost = moon;
-                            Log($"Selected only habitable planet {birthPlanet.Name} as submoon of {birthStar.Name}");
-                            return;
-                        }
-                    }
-                }
-            }
-
-            if (HabitablePlanets.Count == 0)
-            {
-                Log("Generating new habitable planet by overwriting an existing one");
-                var star = GSSettings.Stars.RandomStar;
-                var index = 0;
-                if (star.PlanetCount > 1) index = Mathf.RoundToInt((star.PlanetCount - 1) / 2);
-
-                var planet = star.Planets[index];
-                var themeNames = GSSettings.ThemeLibrary.Habitable;
-                var themeName = themeNames[random.Next(themeNames.Count)];
-                Log($"Setting Planet Theme to {themeName}");
-                planet.Theme = themeName;
-                birthPlanet = planet;
-                birthPlanetIndex = index;
-                birthStar = star;
-                Log($"Selected {birthPlanet.Name}");
-            }
-            else if (HabitablePlanets.Count > 1)
-            {
-                Log("Selecting random habitable planet");
-                birthPlanet = HabitablePlanets[random.Next(1, HabitablePlanets.Count - 1)];
-                birthStar = GetGSStar(birthPlanet);
-                for (var i = 0; i < birthStar.PlanetCount; i++)
-                {
-                    if (birthStar.Planets[i] == birthPlanet)
-                    {
-                        birthPlanetIsMoon = false;
-                        birthPlanetIndex = i;
-                        Log($"Selected {birthPlanet.Name} as birthPlanet (planet) index {i} of star {birthStar.Name}");
-                        return;
-                    }
-
-                    for (var j = 0; j < birthStar.Planets[i].Moons.Count; j++)
-                    {
-                        if (birthStar.Planets[i].Moons[j] == birthPlanet)
-                        {
-                            birthPlanetIsMoon = true;
-                            birthPlanetHost = birthStar.Planets[i];
-                            birthPlanetIndex = j;
-                            Log($"Selected {birthPlanet.Name} as birthPlanet (moon) index {j} of planet {birthPlanetHost.Name} ");
-                            return;
-                        }
-
-                        for (var k = 0; k < birthStar.Planets[i].Moons[j].Moons.Count; k++)
-                        {
-                            if (birthStar.Planets[i].Moons[j].Moons[k] == birthPlanet)
-                            {
-                                birthPlanetIsMoon = true;
-                                birthPlanetHost = birthStar.Planets[i].Moons[j];
-                                birthPlanetIndex = k;
-                                Log($"Selected {birthPlanet.Name} as birthPlanet (sub moon) index {k} of moon {birthPlanetHost.Name} ");
-                                return;
-                            }
-                        }
-                    }
-                }
-
-                Error($"Selected {birthPlanet.Name} but failed to find a birthStar or host!");
-            }
-        }
+        // ////////////////////////// HOME PLANET ////////////////////////// // 
 
         /// <summary>Method to manage home planet theme</summary>
         private void SetBirthPlanetTheme()
@@ -157,26 +57,6 @@ namespace GalacticScale.Generators
         }
 
         // ////////////////////////// HOME SYSTEM ////////////////////////// //
-
-        /// <summary>Ensure starting system has a proper star</summary>
-        private void EnsureProperStartingStar()
-        {
-            if (birthStar.Spectr == ESpectrType.X)
-            {
-                birthStar.Spectr = ESpectrType.G;
-                birthStar.Type = EStarType.MainSeqStar;
-                birthStar.radius = StarDefaults.Radius(birthStar);
-                birthStar.luminosity = StarDefaults.Luminosity(birthStar);
-                birthStar.age = StarDefaults.Age(birthStar);
-                birthStar.mass = StarDefaults.Mass(birthStar);
-                birthStar.lifetime = StarDefaults.Luminosity(birthStar);
-                birthStar.acDiscRadius = -1;
-                birthStar.color = StarDefaults.Color(birthStar);
-                birthStar.temperature = StarDefaults.Temperature(birthStar);
-                birthStar.dysonRadius = StarDefaults.DysonRadius(birthStar);
-                CreatePlanetOrbits(birthStar);
-            }
-        }
 
         /// <summary>Method to guarantee that home system always has a gas giant and at least one terrestrial planet that is not the starter one</summary>
         private void EnsureBirthSystemBodies()
