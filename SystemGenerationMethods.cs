@@ -184,7 +184,10 @@ namespace GalacticScale.Generators
                 {
                     if (planet.MoonCount > 0)
                     {
-                        planet = planet.Moons[random.Next(planet.MoonCount)];
+                        birthPlanet = planet.Moons[random.Next(planet.MoonCount)]; ;
+                        GSSettings.BirthPlanetName = birthPlanet.Name;
+                        birthPlanetIsMoon = true;
+                        birthPlanetHost = planet;
                     }
                     else
                     {
@@ -198,7 +201,6 @@ namespace GalacticScale.Generators
                         GSSettings.BirthPlanetName = birthPlanet.Name;
                         birthPlanetIsMoon = true;
                         birthPlanetHost = planet;
-                        planet = moon;
                     }
                 }
                 else
@@ -211,9 +213,9 @@ namespace GalacticScale.Generators
 
                 var themeNames = GSSettings.ThemeLibrary.Habitable;
                 var themeName = themeNames[random.Next(themeNames.Count)];
-                planet.Theme = themeName;
+                birthPlanet.Theme = themeName;
 
-                Log($"Staring planet is {planet.Name} of type {themeName}");
+                Log($"Staring planet is {birthPlanet.Name} of type {themeName}");
             }
         }
 
