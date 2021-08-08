@@ -10,7 +10,7 @@ namespace GalacticScale.Generators
     {
         private GSPlanet birthPlanet;
         private GSPlanet birthPlanetHost;
-        private int birthPlanetIndex = -1;
+        //private int birthPlanetIndex = -1;
         private bool birthPlanetIsMoon;
         private GSStar birthStar;
         private float maxStepLength = 3.5f;

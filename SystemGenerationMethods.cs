@@ -176,15 +176,15 @@ namespace GalacticScale.Generators
             {
                 Log("Starting system generated with no habitable planets. Creating one by overwriting an existing planet.");
 
-                var index = (star.PlanetCount + 1) / 2;
+                var index = Convert.ToInt32(Math.Floor((star.PlanetCount + 1) / 2.0));
                 var planet = star.Planets[index];
 
                 // if this is a gas giant, try one of its moons
                 if (planet.Scale == 10f)
                 {
-                    if (planet.MoonCount > 0)
+                    if (planet.Moons.Count > 0)
                     {
-                        birthPlanet = planet.Moons[random.Next(planet.MoonCount)]; ;
+                        birthPlanet = planet.Moons[random.Next(planet.Moons.Count)]; ;
                         GSSettings.BirthPlanetName = birthPlanet.Name;
                         birthPlanetIsMoon = true;
                         birthPlanetHost = planet;
@@ -195,8 +195,13 @@ namespace GalacticScale.Generators
                         moon.Name = planet.Name + " - " + moonLetters[0];
                         moon.OrbitRadius = GetMoonOrbit();
                         moon.OrbitalPeriod = Utils.CalculateOrbitPeriod(moon.OrbitRadius);
-
+                        moon.RotationPhase = random.Next(360);
+                        moon.OrbitInclination = random.NextFloat(-20.0f, 20.0f);
+                        moon.OrbitPhase = random.Next(360);
+                        moon.Obliquity = random.NextFloat() * 20;
+                        moon.RotationPeriod = random.Next(80, 1800);
                         planet.Moons.Add(moon);
+
                         birthPlanet = moon;
                         GSSettings.BirthPlanetName = birthPlanet.Name;
                         birthPlanetIsMoon = true;
@@ -212,7 +217,8 @@ namespace GalacticScale.Generators
                 }
 
                 var themeNames = GSSettings.ThemeLibrary.Habitable;
-                var themeName = themeNames[random.Next(themeNames.Count)];
+                var themeName = "Mediterranean";
+                if (themeNames.Count > 0) { themeName = themeNames[random.Next(themeNames.Count)]; }
                 birthPlanet.Theme = themeName;
 
                 Log($"Staring planet is {birthPlanet.Name} of type {themeName}");

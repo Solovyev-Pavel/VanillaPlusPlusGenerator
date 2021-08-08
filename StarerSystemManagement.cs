@@ -70,16 +70,13 @@ namespace GalacticScale.Generators
                 }
             }
 
-            //if (random.NextPick(0.66))
-            //{
-                if (!GSSettings.ThemeLibrary.ContainsKey("IceGiant")) { Themes.IceGiant.Process(); }
-                SystemZones sz = new SystemZones(birthStar.luminosity, birthStar.Type, birthStar.Spectr);
-                GSPlanet lastPlanet = birthStar.Planets[birthStar.PlanetCount - 1];
-                float orbitalRadius = lastPlanet.OrbitRadius + Mathf.Max(lastPlanet.SystemRadius + 0.4f, Mathf.Min(sz.coldZoneEdge - sz.temperateZoneEdge, random.NextFloat(0.65f, 0.95f)));
-                var orbitalPeriod = Utils.CalculateOrbitPeriod(orbitalRadius);
-                string name = $"{birthStar.Name} - {roman[birthStar.Planets.Count + 1]}";
-                var gasPlanet = birthStar.Planets.Add(new GSPlanet(name, "IceGiant", 80, orbitalRadius, random.NextFloat(-20f, 20f), orbitalPeriod, random.NextFloat(0f, 359f), 0f, 180f, 0f, -1f));
-            //}
+            if (!GSSettings.ThemeLibrary.ContainsKey("IceGiant")) { Themes.IceGiant.Process(); }
+            SystemZones sz = new SystemZones(birthStar.luminosity, birthStar.Type, birthStar.Spectr);
+            GSPlanet lastPlanet = birthStar.Planets[birthStar.PlanetCount - 1];
+            float orbitalRadius = lastPlanet.OrbitRadius + Mathf.Max(lastPlanet.SystemRadius + 0.4f, Mathf.Min(sz.coldZoneEdge - sz.temperateZoneEdge, random.NextFloat(0.65f, 0.95f)));
+            var orbitalPeriod = Utils.CalculateOrbitPeriod(orbitalRadius);
+            string name = $"{birthStar.Name} - {roman[birthStar.Planets.Count + 1]}";
+            var gasPlanet = birthStar.Planets.Add(new GSPlanet(name, "IceGiant", 80, orbitalRadius, random.NextFloat(-20f, 20f), orbitalPeriod, random.NextFloat(0f, 359f), 0f, 180f, 0f, -1f));
         }
 
         /// <summary>Method to guarantee that at last one planet in the starting system has titanium veins</summary>
