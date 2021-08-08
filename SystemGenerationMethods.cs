@@ -201,6 +201,13 @@ namespace GalacticScale.Generators
                         planet = moon;
                     }
                 }
+                else
+                {
+                    birthPlanet = planet;
+                    GSSettings.BirthPlanetName = birthPlanet.Name;
+                    birthPlanetIsMoon = false;
+                    birthPlanetHost = null;
+                }
 
                 var themeNames = GSSettings.ThemeLibrary.Habitable;
                 var themeName = themeNames[random.Next(themeNames.Count)];
