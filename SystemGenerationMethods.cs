@@ -206,6 +206,8 @@ namespace GalacticScale.Generators
                 var themeName = themeNames[random.Next(themeNames.Count)];
                 planet.Theme = themeName;
 
+                birthPlanet = planet;
+                GSSettings.BirthPlanetName = birthPlanet.Name;
                 Log($"Staring planet is {planet.Name} of type {themeName}");
             }
         }
