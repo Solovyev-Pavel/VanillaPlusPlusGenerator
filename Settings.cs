@@ -98,6 +98,10 @@ namespace GalacticScale.Generators
             UI.Add("galaxyDensity", Options.Add(GSUI.Slider("Galaxy Density", 1, 5, 9, "galaxyDensity")));
             UI.Add("defaultStarCount", Options.Add(GSUI.Slider("Default StarCount", 16, 64, 96, "defaultStarCount", DefaultStarCountCallback)));
 
+            Options.Add(GSUI.Spacer());
+            Options.Add(GSUI.Separator());
+            Options.Add(GSUI.Spacer());
+
             UI.Add("startingSystemType", Options.Add(GSUI.Combobox("Starting System Star Type", starTypeOptions, StartingStarTypeCallback, InitializeStartingStarTypeComboBox)));
             UI.Add("birthPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Starting Planet Size", 100, 200, 400, "birthPlanetSize")));
             UI.Add("birthPlanetUnlock", Options.Add(GSUI.Checkbox("Starting Planet Unlock", false, "birthPlanetUnlock")));
@@ -108,7 +112,7 @@ namespace GalacticScale.Generators
             Options.Add(GSUI.Spacer());
 
             UI.Add("hugeGasGiants", Options.Add(GSUI.Checkbox("Variable Size Gas Giants", false, "hugeGasGiants")));
-            UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Incread Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
+            UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Increased Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
             UI.Add("moonsAreSmall", Options.Add(GSUI.Combobox("Moons Are Small", moonsAreSmallOptions, SmallMoonsCallback, InitializeSmallMoonsComboBox)));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
             UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
