@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static GalacticScale.RomanNumbers;
 using static GalacticScale.GS2;
@@ -121,12 +122,21 @@ namespace GalacticScale.Generators
             GSSettings.Stars.Add(star);
             birthStar = star;
 
-            int planetCount = GetPlanetCount();
-            if (planetCount < 3) { planetCount = 3; }
-            GeneratePlanetsForStar(birthStar, planetCount);
-
-            // find a habitable planet in the system
-            FindBirthPlanet(birthStar);
+            bool bDreamStarterSystem = preferences.GetBool("dreamSystem", true);
+            // normal starter system generation
+            if (!bDreamStarterSystem)
+            {
+                int planetCount = GetPlanetCount();
+                if (planetCount < 3) { planetCount = 3; }
+                GeneratePlanetsForStar(birthStar, planetCount);
+                // find a habitable planet in the system
+                FindBirthPlanet(birthStar);
+            }
+            // "dream" starter system generation
+            else
+            {
+                GenerateDreamStartingSystemPlanets(birthStar);
+            }
 
             // ensure all bodies have proper orbital periods
             EnsureProperOrbitalPeriods(star);
@@ -199,7 +209,7 @@ namespace GalacticScale.Generators
                         moon.OrbitInclination = random.NextFloat(-20.0f, 20.0f);
                         moon.OrbitPhase = random.Next(360);
                         moon.Obliquity = random.NextFloat() * 20;
-                        moon.RotationPeriod = random.Next(80, 1800);
+                        moon.RotationPeriod = random.Next(360, 1800);
                         planet.Moons.Add(moon);
 
                         birthPlanet = moon;
@@ -275,6 +285,73 @@ namespace GalacticScale.Generators
             CreatePlanetOrbits(star);
             SelectPlanetThemes(star);
             SetPlanetProperties(star);
+        }
+
+        /// <summary>Method that generates "dream" starting system (not balanced)</summary>
+        /// <param name="star">Parent star</param>
+        private void GenerateDreamStartingSystemPlanets(GSStar star)
+        {
+            star.Planets = new GSPlanets();
+
+            // planet #1 : lava or hot obsidian or molten oasis
+            List<string> firstPlanetThemes = new List<string>() { "Lava" };
+            if (GS2.externalThemes.ContainsKey("HotObsidian")) { firstPlanetThemes.Add("HotObsidian"); }
+            if (GS2.externalThemes.ContainsKey("MoltenOasis")) { firstPlanetThemes.Add("MoltenOasis"); }
+            var firstPlanet = CreateCelestialBody(star, null, false, false);
+            firstPlanet.Theme = firstPlanetThemes[random.Next(firstPlanetThemes.Count)];
+            star.Planets.Add(firstPlanet);
+
+            // planet #2 : gas giant
+            var secondPlanet = CreateCelestialBody(star, null, true, false);
+            secondPlanet.Theme = "GasGiant";
+            // planet #2, moon #1 : sulfur sea or volcanic ash
+            List<string> firstMoonThemes = new List<string>() { "VolcanicAsh" };
+            if (GS2.externalThemes.ContainsKey("SulfurSea")) { firstMoonThemes.Add("SulfurSea"); }
+            var firstMoon = CreateCelestialBody(star, secondPlanet, false, true);
+            firstMoon.Theme = firstMoonThemes[random.Next(firstMoonThemes.Count)];
+            secondPlanet.Moons.Add(firstMoon);
+            // planet #2, moon #2 : <home planet>
+            List<string> secondMoonThemes = new List<string>() { "OceanicJungle", "Sakura", "Prairie", "Mediterranean" };
+            if (GS2.externalThemes.ContainsKey("Swamp")) { secondMoonThemes.Add("Swamp"); }
+            var secondMoon = CreateCelestialBody(star, secondPlanet, false, true);
+            secondMoon.Theme = secondMoonThemes[random.Next(secondMoonThemes.Count)];
+            secondPlanet.Moons.Add(secondMoon);
+            // planet #2, moon #3 : gobi or arid desert or red stone
+            List<string> thirdMoonThemes = new List<string>() { "Gobi", "AridDesert", "RedStone", "Hurricane" };
+            var thirdMoon = CreateCelestialBody(star, secondPlanet, false, true);
+            thirdMoon.Theme = thirdMoonThemes[random.Next(thirdMoonThemes.Count)];
+            secondPlanet.Moons.Add(thirdMoon);
+            star.Planets.Add(secondPlanet);
+
+            // planet #3 : ice giant
+            var thirdPlanet = CreateCelestialBody(star, null, true, false);
+            thirdPlanet.Theme = "IceGiant";
+            // planet #3, moon #1 : frozen forest or ice malusol or ice lake or glacial plates or ice gelisol or frozen comet or barren
+            List<string> fourthMoonThemes = new List<string>() { "IceLake", "IceGelisol", "Barren" };
+            if (GS2.externalThemes.ContainsKey("FrozenForest")) { secondMoonThemes.Add("FrozenForest"); }
+            if (GS2.externalThemes.ContainsKey("IceMalusol")) { secondMoonThemes.Add("IceMalusol"); }
+            if (GS2.externalThemes.ContainsKey("GlacialPlates")) { secondMoonThemes.Add("GlacialPlates"); }
+            if (GS2.externalThemes.ContainsKey("FrozenComet")) { secondMoonThemes.Add("FrozenComet"); }
+            var fourthMoon = CreateCelestialBody(star, thirdPlanet, false, true);
+            fourthMoon.Theme = fourthMoonThemes[random.Next(fourthMoonThemes.Count)];
+            thirdPlanet.Moons.Add(fourthMoon);
+            star.Planets.Add(thirdPlanet);
+
+            CreatePlanetOrbits(star);
+            SetPlanetProperties(star);
+
+            birthPlanet = secondMoon;
+            GSSettings.BirthPlanetName = birthPlanet.Name;
+            birthPlanetHost = secondPlanet;
+            birthPlanetIsMoon = true;
+
+            // ensure optical crystals
+            if (!firstPlanet.GsTheme.VeinSettings.VeinTypes.ContainsVein(EVeinType.Grat))
+            {
+                firstPlanet.GsTheme.VeinSettings.Algorithm = "GS2";
+                firstPlanet.GsTheme.CustomGeneration = true;
+                firstPlanet.GsTheme.VeinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Grat, 2, 3, 0.6f, 0.6f, 5, 10, true));
+            }
         }
 
         /// <summary>Method to create a celestial body entity</summary>

@@ -86,6 +86,8 @@ namespace GalacticScale.Generators
             preferences.Set("freqYG", 1);
             preferences.Set("freqWG", 1);
             preferences.Set("freqBG", 1);
+
+            preferences.Set("dreamSystem", false);
         }
 
         /// <summary>Generate UI elements</summary>
@@ -112,7 +114,7 @@ namespace GalacticScale.Generators
             Options.Add(GSUI.Spacer());
 
             UI.Add("hugeGasGiants", Options.Add(GSUI.Checkbox("Variable Size Gas Giants", false, "hugeGasGiants")));
-            UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Increased Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
+            UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Higher Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
             UI.Add("moonsAreSmall", Options.Add(GSUI.Combobox("Moons Are Small", moonsAreSmallOptions, SmallMoonsCallback, InitializeSmallMoonsComboBox)));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
             UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
