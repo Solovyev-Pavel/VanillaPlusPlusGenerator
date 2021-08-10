@@ -42,7 +42,7 @@
       <HintPath>C:\Users\Pavel\AppData\Roaming\r2modmanPlus-local\DysonSphereProgram\profiles\DysonSphereProgramMods3\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="GalacticScale">
-      <HintPath>C:\Users\Pavel\AppData\Roaming\r2modmanPlus-local\DysonSphereProgram\profiles\DysonSphereProgramMods3\BepInEx\plugins\Galactic_Scale-GalacticScale\GalacticScale2b83.3.dll</HintPath>
+      <HintPath>C:\Users\Pavel\AppData\Roaming\r2modmanPlus-local\DysonSphereProgram\profiles\DysonSphereProgramMods3\BepInEx\plugins\Galactic_Scale-GalacticScale\GalacticScale2b83.8.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>D:\Games\Steam\steamapps\common\Dyson Sphere Program\DSPGAME_Data\Managed\netstandard.dll</HintPath>
