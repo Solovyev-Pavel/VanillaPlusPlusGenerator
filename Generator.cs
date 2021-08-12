@@ -28,7 +28,8 @@ namespace GalacticScale.Generators
 
         /// <summary>Method for generation of a star cluster</summary>
         /// <param name="starCount">Number of stars in the cluster</param>
-        public void Generate(int starCount)
+        /// <param name="birthStar">Interface parameter, not used. Denotes player-selected birth star</param>
+        public void Generate(int starCount, StarData birthStar = null)
         {
             if (starCount < Config.MinStarCount) { starCount = Config.MinStarCount; }
             if (starCount > Config.MaxStarCount) { starCount = Config.MaxStarCount; }

@@ -27,6 +27,8 @@ namespace GalacticScale.Generators
         {
             AddUIElements();
             InitPreferences();
+
+            Config.enableStarSelector = false;
         }
 
         /// <summary>Import of generator's preferences</summary>
