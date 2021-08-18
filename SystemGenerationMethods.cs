@@ -282,6 +282,26 @@ namespace GalacticScale.Generators
                 }
             }
 
+            // ensure that there is at least one telluric body in the system
+            int iTelluricCount = 0;
+            for (int i = 0; i < star.Planets.Count; ++i)
+            {
+                if (star.Planets[i].Scale != 10f)
+                {
+                    ++iTelluricCount;
+                }
+                if (star.Planets[i].Moons.Count > 0)
+                {
+                    iTelluricCount += star.Planets[i].Moons.Count; // all moons in Vanilla++ are telluric
+                }
+            }
+            // if normal generation didn't spawn any telluric bodies, add one as a moon to the first gas giant
+            if (iTelluricCount == 0)
+            {
+                var moon = CreateCelestialBody(star, star.Planets[0], false, true);
+                star.Planets[0].Moons.Add(moon);
+            }
+
             CreatePlanetOrbits(star);
             SelectPlanetThemes(star);
             SetPlanetProperties(star);
@@ -560,7 +580,7 @@ namespace GalacticScale.Generators
         /// <returns>Orbit distance of a moon</returns>
         private float GetMoonOrbit()
         {
-            return 0.05f + random.NextFloat(0f, 0.02f);
+            return 0.06f + random.NextFloat(0f, 0.02f);
         }
 
         /// <summary>Method to ensure all planets/moons of a star have proper orbital periods</summary>
