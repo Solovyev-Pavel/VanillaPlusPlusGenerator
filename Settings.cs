@@ -68,10 +68,8 @@ namespace GalacticScale.Generators
             preferences.Set("smallGasGiantMoons", false);
             preferences.Set("tidalLockInnerPlanets", false);
             preferences.Set("luminosityBoost", false);
-            preferences.Set("minPlanetCount", 1);
-            preferences.Set("maxPlanetCount", 6);
-            preferences.Set("minPlanetSize", 200);
-            preferences.Set("maxPlanetSize", 200);
+            preferences.Set($"planetCount", (1, 6));
+            preferences.Set($"planetSize", (200, 200));
             preferences.Set("sizeBias", 50);
             preferences.Set("countBias", 50);
             preferences.Set("freqK", 40);
@@ -88,6 +86,8 @@ namespace GalacticScale.Generators
             preferences.Set("freqYG", 1);
             preferences.Set("freqWG", 1);
             preferences.Set("freqBG", 1);
+            preferences.Set("chanceGas", 25);
+            preferences.Set("chanceMoon", 25);
 
             preferences.Set("dreamSystem", false);
         }
@@ -147,11 +147,9 @@ namespace GalacticScale.Generators
             Options.Add(GSUI.Separator());
             Options.Add(GSUI.Spacer());
 
-            UI.Add("minPlanetCount", Options.Add(GSUI.Slider("Min Planets/System", 1, 4, 10, "minPlanetCount", MinPlanetCountCallback)));
-            UI.Add("maxPlanetCount", Options.Add(GSUI.Slider("Max Planets/System", 1, 6, 10, "maxPlanetCount", MaxPlanetCountCallback)));
+            UI.Add("planetCount", Options.Add(GSUI.RangeSlider("Number of Planets per System", 1, 2, 6, 10, 1, "planetCount")));
             UI.Add("countBias", Options.Add(GSUI.Slider("Planet Count Bias", 0, 50, 100, "sizeBias", CountBiasCallback)));
-            UI.Add("minPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Min planet size", 100, 200, 400, "minPlanetSize", MinPlanetSizeCallback)));
-            UI.Add("maxPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Max planet size", 100, 200, 400, "maxPlanetSize", MaxPlanetSizeCallback)));
+            UI.Add("planetSize", Options.Add(GSUI.RangeSlider("Planet Sizes", 100, 200, 200, 400, 20, "planetSize")));
             UI.Add("sizeBias", Options.Add(GSUI.Slider("Planet Size Bias", 0, 50, 100, "sizeBias", PlanetSizeBiasCallback)));
 
             UI.Add("chanceGas", Options.Add(GSUI.Slider("Chance Gas", 10, 20, 50, "chanceGas", GasChanceCallback)));
@@ -277,30 +275,6 @@ namespace GalacticScale.Generators
             preferences.Set("chanceGas", o);
         }
 
-        /// <summary>Callback for setting min planet count</summary>
-        /// <param name="o">Min planet count value</param>
-        private void MinPlanetCountCallback(Val o)
-        {
-            var maxCount = preferences.GetInt("maxPlanetCount");
-            if (maxCount == -1f) maxCount = 10;
-            if (maxCount < o)
-            {
-                preferences.Set("minPlanetCount", maxCount);
-            }
-        }
-
-        /// <summary>Callback for setting max planet count</summary>
-        /// <param name="o">Max planet count value</param>
-        private void MaxPlanetCountCallback(Val o)
-        {
-            var minCount = preferences.GetInt("minPlanetCount");
-            if (minCount == -1f) minCount = 1;
-            if (minCount > o)
-            {
-                preferences.Set("maxPlanetCount", minCount);
-            }
-        }
-
         /// <summary>Callback for setting planet count bias</summary>
         /// <param name="o">Planet count bias</param>
         private void CountBiasCallback(Val o)
@@ -308,63 +282,11 @@ namespace GalacticScale.Generators
             preferences.Set("countBias", o);
         }
 
-        /// <summary>Callback for setting min planet size</summary>
-        /// <param name="o">Min planet size value</param>
-        private void MinPlanetSizeCallback(Val o)
-        {
-            preferences.Set("minPlanetSize", Utils.ParsePlanetSize(o));
-            var maxSize = preferences.GetFloat("maxPlanetSize", 200);
-            if (maxSize < o)
-            {
-                UI["maxPlanetSize"].Set(o);
-            }
-        }
-
-        /// <summary>Callback for setting max planet size</summary>
-        /// <param name="o">Max planet size value</param>
-        private void MaxPlanetSizeCallback(Val o)
-        {
-            preferences.Set("maxPlanetSize", Utils.ParsePlanetSize(o));
-            var minSize = preferences.GetFloat("minPlanetSize", 200);
-            if (minSize > o)
-            {
-                UI["minPlanetSize"].Set(o);
-            }
-        }
-
         /// <summary>Callback for planet size bias</summary>
         /// <param name="o">Planet size bias</param>
         private void PlanetSizeBiasCallback(Val o)
         {
             preferences.Set("sizeBias", o);
-        }
-
-        /// <summary>Method for getting the maximal number of planets a star can have</summary>
-        /// <returns>Maximal number of planets a star can have</returns>
-        private int GetMaxPlanetCount()
-        {
-            return preferences.GetInt("maxPlanetCount");
-        }
-
-        /// <summary>Method for getting the minimal number of planets a star can have</summary>
-        /// <returns>Minimal number of planets a star can have</returns>
-        private int GetMinPlanetCount()
-        {
-            return preferences.GetInt("minPlanetCount");
-        }
-
-        /// <summary>Method for getting the maximal size a planet can have</summary>
-        /// <returns>Maximal size for a planet</returns>
-        private int GetMaxPlanetSize()
-        {
-            return preferences.GetInt("maxPlanetSize");
-        }
-
-        /// <summary>Method for getting the minimal size a planet can have</summary>
-        /// <returns>Minimal size for a planet</returns>
-        private int GetMinPlanetSize()
-        {
-            return preferences.GetInt("minPlanetSize");
         }
 
         /// <summary>Method for getting a bias for planet size</summary>
