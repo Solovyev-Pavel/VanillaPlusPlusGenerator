@@ -148,12 +148,12 @@ namespace GalacticScale.Generators
             Options.Add(GSUI.Spacer());
 
             UI.Add("planetCount", Options.Add(GSUI.RangeSlider("Number of Planets per System", 1, 2, 6, 10, 1, "planetCount")));
-            UI.Add("countBias", Options.Add(GSUI.Slider("Planet Count Bias", 0, 50, 100, "sizeBias", CountBiasCallback)));
-            UI.Add("planetSize", Options.Add(GSUI.RangeSlider("Planet Sizes", 100, 200, 200, 400, 20, "planetSize")));
-            UI.Add("sizeBias", Options.Add(GSUI.Slider("Planet Size Bias", 0, 50, 100, "sizeBias", PlanetSizeBiasCallback)));
+            UI.Add("countBias", Options.Add(GSUI.Slider("Planet Count Bias", 0, 50, 100, "countBias")));
+            UI.Add("planetSize", Options.Add(GSUI.RangeSlider("Planet Size Range", 100, 200, 200, 400, 20, "planetSize")));
+            UI.Add("sizeBias", Options.Add(GSUI.Slider("Planet Size Bias", 0, 50, 100, "sizeBias")));
 
-            UI.Add("chanceGas", Options.Add(GSUI.Slider("Chance Gas", 10, 20, 50, "chanceGas", GasChanceCallback)));
-            UI.Add("chanceMoon", Options.Add(GSUI.Slider("Chance Moon", 10, 20, 80, "chanceMoon", MoonChanceCallback)));
+            UI.Add("chanceGas", Options.Add(GSUI.Slider("Chance Gas", 10, 20, 50, "chanceGas")));
+            UI.Add("chanceMoon", Options.Add(GSUI.Slider("Chance Moon", 10, 20, 80, "chanceMoon")));
         }
 
         /// <summary>Callback for setting default star count for the cluster</summary>
@@ -258,35 +258,6 @@ namespace GalacticScale.Generators
                         break;
                     }
             }
-        }
-
-        /// <summary>Callback for setting the chance for a planet to be a moon</summary>
-        /// <param name="o">Moon chance</param>
-        private void MoonChanceCallback(Val o)
-        {
-            //SetAllStarTypeOptions("chanceMoon", o);
-            preferences.Set("chanceMoon", o);
-        }
-
-        /// <summary>Callback for setting the chance for a planet to be a gas giant</summary>
-        /// <param name="o">Gas giant chance</param>
-        private void GasChanceCallback(Val o)
-        {
-            preferences.Set("chanceGas", o);
-        }
-
-        /// <summary>Callback for setting planet count bias</summary>
-        /// <param name="o">Planet count bias</param>
-        private void CountBiasCallback(Val o)
-        {
-            preferences.Set("countBias", o);
-        }
-
-        /// <summary>Callback for planet size bias</summary>
-        /// <param name="o">Planet size bias</param>
-        private void PlanetSizeBiasCallback(Val o)
-        {
-            preferences.Set("sizeBias", o);
         }
 
         /// <summary>Method for getting a bias for planet size</summary>
