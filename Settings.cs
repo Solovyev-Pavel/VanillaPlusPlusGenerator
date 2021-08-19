@@ -72,8 +72,8 @@ namespace GalacticScale.Generators
             preferences.Set($"planetSize", (200, 200));
             preferences.Set("sizeBias", 50);
             preferences.Set("countBias", 50);
-            preferences.Set("freqK", 40);
             preferences.Set("freqM", 50);
+            preferences.Set("freqK", 40);
             preferences.Set("freqG", 30);
             preferences.Set("freqF", 25);
             preferences.Set("freqA", 10);
@@ -127,8 +127,8 @@ namespace GalacticScale.Generators
 
             // star types frequency settings group
             var starFreqOptions = new GSOptions();
-            UI.Add("freqK", starFreqOptions.Add(GSUI.Slider("Freq. Type K", 0, 40, 100, "freqK")));
             UI.Add("freqM", starFreqOptions.Add(GSUI.Slider("Freq. Type M", 0, 50, 100, "freqM")));
+            UI.Add("freqK", starFreqOptions.Add(GSUI.Slider("Freq. Type K", 0, 40, 100, "freqK")));
             UI.Add("freqG", starFreqOptions.Add(GSUI.Slider("Freq. Type G", 0, 30, 100, "freqG")));
             UI.Add("freqF", starFreqOptions.Add(GSUI.Slider("Freq. Type F", 0, 25, 100, "freqF")));
             UI.Add("freqA", starFreqOptions.Add(GSUI.Slider("Freq. Type A", 0, 10, 100, "freqA")));
