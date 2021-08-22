@@ -407,9 +407,9 @@ namespace GalacticScale.Generators
         /// <returns>Number of planets</returns>
         private int GetPlanetCount()
         {
-            ValueTuple<float, float> planetCount = preferences.GetFloatFloat("planetCount");
-            var min = Math.Max(Convert.ToInt32(planetCount.Item1), 1);
-            var max = Math.Max(Convert.ToInt32(planetCount.Item2), 1);
+            FloatPair planetCount = preferences.GetFloatFloat("planetCount");
+            var min = Math.Max(Convert.ToInt32(planetCount.low), 1);
+            var max = Math.Max(Convert.ToInt32(planetCount.high), 1);
             var result = ClampedNormal(min, max, GetPlanetCountBias());
             return result;
         }
@@ -418,9 +418,9 @@ namespace GalacticScale.Generators
         /// <returns>Planetary object's size</returns>
         private int GetPlanetSize()
         {
-            ValueTuple<float, float> planetSize = preferences.GetFloatFloat("planetSize");
-            var min = Convert.ToInt32(planetSize.Item1);
-            var max = Convert.ToInt32(planetSize.Item2);
+            FloatPair planetSize = preferences.GetFloatFloat("planetSize");
+            var min = Convert.ToInt32(planetSize.low);
+            var max = Convert.ToInt32(planetSize.high);
             var bias = GetPlanetSizeBias();
             int size = ClampedNormalSize(min, max, bias);
             size = Mathf.RoundToInt(size / 10f) * 10; // size step = 10

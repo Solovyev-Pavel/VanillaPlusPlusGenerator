@@ -69,7 +69,7 @@ namespace GalacticScale.Generators
             preferences.Set("tidalLockInnerPlanets", false);
             preferences.Set("luminosityBoost", false);
             preferences.Set($"planetCount", (1, 6));
-            preferences.Set($"planetSize", (200, 200));
+            preferences.Set($"planetSize", new FloatPair(200, 200));
             preferences.Set("sizeBias", 50);
             preferences.Set("countBias", 50);
             preferences.Set("freqM", 50);
