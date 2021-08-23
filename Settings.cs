@@ -58,6 +58,7 @@ namespace GalacticScale.Generators
         {
             preferences.Set("galaxyDensity", 5);
             preferences.Set("defaultStarCount", 64);
+            preferences.Set("binaryStarChance", 25);
             preferences.Set("startingSystemType", "Random");
             preferences.Set("birthPlanetSize", 200);
             preferences.Set("birthPlanetUnlock", false);
@@ -68,7 +69,7 @@ namespace GalacticScale.Generators
             preferences.Set("smallGasGiantMoons", false);
             preferences.Set("tidalLockInnerPlanets", false);
             preferences.Set("luminosityBoost", false);
-            preferences.Set($"planetCount", (1, 6));
+            preferences.Set($"planetCount", new FloatPair(1, 6));
             preferences.Set($"planetSize", new FloatPair(200, 200));
             preferences.Set("sizeBias", 50);
             preferences.Set("countBias", 50);
@@ -101,6 +102,7 @@ namespace GalacticScale.Generators
 
             UI.Add("galaxyDensity", Options.Add(GSUI.Slider("Galaxy Density", 1, 5, 9, "galaxyDensity")));
             UI.Add("defaultStarCount", Options.Add(GSUI.Slider("Default StarCount", 16, 64, 96, "defaultStarCount", DefaultStarCountCallback)));
+            UI.Add("binaryStarChance", Options.Add(GSUI.Slider("Binary Star Chance", 0, 25, 50, "binaryStarChance")));
 
             Options.Add(GSUI.Spacer());
             Options.Add(GSUI.Separator());

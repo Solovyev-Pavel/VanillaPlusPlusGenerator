@@ -10,7 +10,25 @@ namespace GalacticScale.Generators
     public partial class VanillaPlusPlusGenerator : iConfigurableGenerator
     {
 
+        // suffixes for moon names. since generator allows only 10 bodies per system max, no need to provide more letters than this
         static readonly string[] moonLetters = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
+        // lists of possible companion stars for binary systems
+        static readonly Dictionary<EStar, List<EStar>> companionTypes = new Dictionary<EStar, List<EStar>>
+        {
+            { EStar.M, new List<EStar> { EStar.M, EStar.WhiteDwarf } },
+            { EStar.K, new List<EStar> { EStar.M, EStar.WhiteDwarf } },
+            { EStar.G, new List<EStar> { EStar.M, EStar.K, EStar.WhiteDwarf } },
+            { EStar.F, new List<EStar> { EStar.M, EStar.K, EStar.WhiteDwarf } },
+            { EStar.A, new List<EStar> { EStar.M, EStar.NeutronStar, EStar.WhiteDwarf } },
+            { EStar.B, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.NeutronStar, EStar.WhiteDwarf } },
+            { EStar.O, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.A, EStar.NeutronStar, EStar.WhiteDwarf } },
+            { EStar.RedGiant, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.A, EStar.BlackHole } },
+            { EStar.YellowGiant, new List<EStar> { EStar.M, EStar.K, EStar.F } },
+            { EStar.WhiteGiant, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.NeutronStar, EStar.WhiteDwarf, EStar.BlackHole } },
+            { EStar.BlueGiant, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.A, EStar.NeutronStar, EStar.WhiteDwarf } },
+            { EStar.NeutronStar, new List<EStar> { EStar.NeutronStar, EStar.WhiteDwarf } },
+            { EStar.BlackHole, new List<EStar> { EStar.NeutronStar, EStar.BlackHole } }
+        };
 
         /// <summary>Structure contatining data about 'climate' zones of the star system</summary>
         private struct SystemZones
@@ -45,6 +63,114 @@ namespace GalacticScale.Generators
             public float coldZoneEdge;
             public float frozenZoneEdge;
         };
+
+        // //////////////////// STAR SYSTEM MODIFICATION /////////////////// //
+
+        /// <summary>Method to create a companion star within a given system</summary>
+        /// <param name="star">Target parent star</param>
+        private void CreateBinarySystem(GSStar star)
+        {
+            // no trinary systems yet!
+            if (star.genData != null && star.genData.ContainsKey("hasBinary") && star.genData.Get("hasBinary").Bool()) { return; }
+            if (star.genData != null && star.genData.ContainsKey("binary") && star.genData.Get("binary").Bool()) { return; }
+
+            double chance = preferences.GetDouble("binaryStarChance", 25) * 0.01;
+            // black holes and neutron stars have far lower chance of having a companion, white dwarves never have one
+            if (star.Type == EStarType.NeutronStar || star.Type == EStarType.BlackHole)
+                chance *= 0.1;
+            else if (star.Type == EStarType.WhiteDwarf)
+                chance = 0;
+
+            if (random.NextPick(chance))
+            {
+                (EStarType, ESpectrType) companionType = ConvertEStarValue(ChooseCompanionStarType(star));
+                var binary = GSSettings.Stars.Add(new GSStar(random.Next(), star.Name + "-B", companionType.Item2, companionType.Item1, new GSPlanets()));
+                binary.genData.Add("binary", true);
+                star.genData.Add("hasBinary", true);
+                star.BinaryCompanion = binary.Name;
+                binary.radius = StarDefaults.Radius(binary) * 0.75f;
+                binary.Decorative = true;
+                var offset = (star.RadiusLY + binary.RadiusLY) * random.NextFloat(4.0f, 6.0f);
+                star.genData.Add("binaryOffset", offset);
+                binary.position = new VectorLF3(offset, 0, 0);
+                star.luminosity += binary.luminosity;
+                binary.luminosity = 0;
+            }
+        }
+
+        /// <summary>Method to pick the type of a companion star in a binary system</summary>
+        /// <param name="star">Primary star</param>
+        private EStar ChooseCompanionStarType(GSStar star)
+        {
+            // choosing a companion for a black hole
+            if (star.Type == EStarType.BlackHole)
+            {
+                return random.Item(companionTypes[EStar.BlackHole]);
+            }
+            // choosing a companion for a neutron star
+            else if (star.Type == EStarType.NeutronStar)
+            {
+                return random.Item(companionTypes[EStar.NeutronStar]);
+            }
+            // choosing a companion star for a binary with a normal star as primary
+            else if (star.Type == EStarType.MainSeqStar)
+            {
+                switch (star.Spectr)
+                {
+                    case ESpectrType.M: return random.Item(companionTypes[EStar.M]);
+                    case ESpectrType.K: return random.Item(companionTypes[EStar.K]);
+                    case ESpectrType.G: return random.Item(companionTypes[EStar.G]);
+                    case ESpectrType.F: return random.Item(companionTypes[EStar.F]);
+                    case ESpectrType.A: return random.Item(companionTypes[EStar.A]);
+                    case ESpectrType.B: return random.Item(companionTypes[EStar.B]);
+                    case ESpectrType.O: return random.Item(companionTypes[EStar.O]);
+                    default: return EStar.M;
+                }
+            }
+            // choosing a companion star for a binary with a giant star as primary
+            else if (star.Type == EStarType.GiantStar)
+            {
+                switch (star.Spectr)
+                {
+                    case ESpectrType.M:
+                    case ESpectrType.K: return random.Item(companionTypes[EStar.RedGiant]);
+                    case ESpectrType.G: return random.Item(companionTypes[EStar.YellowGiant]);
+                    case ESpectrType.F:
+                    case ESpectrType.A: return random.Item(companionTypes[EStar.WhiteGiant]);
+                    case ESpectrType.B:
+                    case ESpectrType.O: return random.Item(companionTypes[EStar.BlueGiant]);
+                    default: return EStar.M;
+                }
+            }
+            // fallback in case we somehow got there. M-types are available as companions to any kind of star
+            else
+            {
+                return EStar.M;
+            }
+        }
+
+        /// <summary>Method for converting EStar enum value to (EStarType, ESpectrType) pair</summary>
+        private (EStarType, ESpectrType) ConvertEStarValue(EStar type)
+        {
+            switch (type)
+            {
+                case EStar.M: return (EStarType.MainSeqStar, ESpectrType.M);
+                case EStar.K: return (EStarType.MainSeqStar, ESpectrType.K);
+                case EStar.G: return (EStarType.MainSeqStar, ESpectrType.G);
+                case EStar.F: return (EStarType.MainSeqStar, ESpectrType.F);
+                case EStar.A: return (EStarType.MainSeqStar, ESpectrType.A);
+                case EStar.B: return (EStarType.MainSeqStar, ESpectrType.B);
+                case EStar.O: return (EStarType.MainSeqStar, ESpectrType.O);
+                case EStar.RedGiant: return (EStarType.GiantStar, ESpectrType.M);
+                case EStar.YellowGiant: return (EStarType.GiantStar, ESpectrType.G);
+                case EStar.WhiteGiant: return (EStarType.GiantStar, ESpectrType.A);
+                case EStar.BlueGiant: return (EStarType.GiantStar, ESpectrType.O);
+                case EStar.WhiteDwarf: return (EStarType.WhiteDwarf, ESpectrType.X);
+                case EStar.NeutronStar: return (EStarType.NeutronStar, ESpectrType.X);
+                case EStar.BlackHole: return (EStarType.BlackHole, ESpectrType.X);
+                default: return (EStarType.MainSeqStar, ESpectrType.M);
+            }
+        }
 
         // ///////////////////// HOME SYSTEM GENERATION //////////////////// //
 
@@ -194,7 +320,7 @@ namespace GalacticScale.Generators
                 {
                     if (planet.Moons.Count > 0)
                     {
-                        birthPlanet = planet.Moons[random.Next(planet.Moons.Count)]; ;
+                        birthPlanet = random.Item(planet.Moons); ;
                         GSSettings.BirthPlanetName = birthPlanet.Name;
                         birthPlanetIsMoon = true;
                         birthPlanetHost = planet;
@@ -228,7 +354,7 @@ namespace GalacticScale.Generators
 
                 var themeNames = GSSettings.ThemeLibrary.Habitable;
                 var themeName = "Mediterranean";
-                if (themeNames.Count > 0) { themeName = themeNames[random.Next(themeNames.Count)]; }
+                if (themeNames.Count > 0) { themeName = random.Item(themeNames); }
                 birthPlanet.Theme = themeName;
 
                 Log($"Staring planet is {birthPlanet.Name} of type {themeName}");
@@ -318,7 +444,7 @@ namespace GalacticScale.Generators
             if (GS2.externalThemes.ContainsKey("HotObsidian")) { firstPlanetThemes.Add("HotObsidian"); }
             if (GS2.externalThemes.ContainsKey("MoltenOasis")) { firstPlanetThemes.Add("MoltenOasis"); }
             var firstPlanet = CreateCelestialBody(star, null, false, false);
-            firstPlanet.Theme = firstPlanetThemes[random.Next(firstPlanetThemes.Count)];
+            firstPlanet.Theme = random.Item(firstPlanetThemes);
             star.Planets.Add(firstPlanet);
 
             // planet #2 : gas giant
@@ -328,18 +454,19 @@ namespace GalacticScale.Generators
             List<string> firstMoonThemes = new List<string>() { "VolcanicAsh" };
             if (GS2.externalThemes.ContainsKey("SulfurSea")) { firstMoonThemes.Add("SulfurSea"); }
             var firstMoon = CreateCelestialBody(star, secondPlanet, false, true);
-            firstMoon.Theme = firstMoonThemes[random.Next(firstMoonThemes.Count)];
+            firstMoon.Theme = random.Item(firstMoonThemes);
             secondPlanet.Moons.Add(firstMoon);
             // planet #2, moon #2 : <home planet>
             List<string> secondMoonThemes = new List<string>() { "OceanicJungle", "Sakura", "Prairie", "Mediterranean" };
             if (GS2.externalThemes.ContainsKey("Swamp")) { secondMoonThemes.Add("Swamp"); }
+            if (GS2.externalThemes.ContainsKey("FloodedMesa")) { secondMoonThemes.Add("FloodedMesa"); }
             var secondMoon = CreateCelestialBody(star, secondPlanet, false, true);
-            secondMoon.Theme = secondMoonThemes[random.Next(secondMoonThemes.Count)];
+            secondMoon.Theme = random.Item(secondMoonThemes);
             secondPlanet.Moons.Add(secondMoon);
             // planet #2, moon #3 : gobi or arid desert or red stone
             List<string> thirdMoonThemes = new List<string>() { "Gobi", "AridDesert", "RedStone", "Hurricane" };
             var thirdMoon = CreateCelestialBody(star, secondPlanet, false, true);
-            thirdMoon.Theme = thirdMoonThemes[random.Next(thirdMoonThemes.Count)];
+            thirdMoon.Theme = random.Item(thirdMoonThemes);
             secondPlanet.Moons.Add(thirdMoon);
             star.Planets.Add(secondPlanet);
 
@@ -353,7 +480,7 @@ namespace GalacticScale.Generators
             if (GS2.externalThemes.ContainsKey("GlacialPlates")) { secondMoonThemes.Add("GlacialPlates"); }
             if (GS2.externalThemes.ContainsKey("FrozenComet")) { secondMoonThemes.Add("FrozenComet"); }
             var fourthMoon = CreateCelestialBody(star, thirdPlanet, false, true);
-            fourthMoon.Theme = fourthMoonThemes[random.Next(fourthMoonThemes.Count)];
+            fourthMoon.Theme = random.Item(fourthMoonThemes);
             thirdPlanet.Moons.Add(fourthMoon);
             star.Planets.Add(thirdPlanet);
 
@@ -466,6 +593,10 @@ namespace GalacticScale.Generators
         {
             // star's habitable zone
             SystemZones sz = new SystemZones(star.luminosity, star.Type, star.Spectr);
+            // offset in case of binary system
+            float fBinaryOffset = 0f;
+            if (star.genData != null && star.genData.ContainsKey("binaryOffset"))
+                fBinaryOffset = star.genData.Get("binaryOffset").Float(0f);
 
             // planets
             bool bInnerPlanetIsClose = random.NextPick(0.5);
@@ -494,11 +625,11 @@ namespace GalacticScale.Generators
                     {
                         if (bInnerPlanetIsClose)
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 2.0f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius;
+                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 2.0f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius + fBinaryOffset;
                         }
                         else
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.9f) * sz.temperateZoneEdge) + planet.SystemRadius;
+                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.9f) * sz.temperateZoneEdge) + planet.SystemRadius + fBinaryOffset;
                         }
                     }
                     // second planet has orbit gap variance depending on whether the innermost one is close to the star
@@ -527,11 +658,11 @@ namespace GalacticScale.Generators
                     {
                         if (bInnerPlanetIsClose)
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 1.25f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius;
+                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 1.25f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius + fBinaryOffset;
                         }
                         else
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.85f) * (sz.coldZoneEdge - sz.temperateZoneEdge) + star.RadiusAU * 0.25f) + planet.SystemRadius;
+                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.85f) * (sz.coldZoneEdge - sz.temperateZoneEdge) + star.RadiusAU * 0.25f) + planet.SystemRadius + fBinaryOffset;
                         }
                     }
                     // second planet has orbit gap variance depending on whether the innermost one is close to the star
@@ -560,11 +691,11 @@ namespace GalacticScale.Generators
                     {
                         if (bInnerPlanetIsClose)
                         {
-                            planet.OrbitRadius = random.NextFloat(0.25f, 0.45f);
+                            planet.OrbitRadius = random.NextFloat(0.25f, 0.45f) + fBinaryOffset;
                         }
                         else
                         {
-                            planet.OrbitRadius = random.NextFloat(0.7f, 0.85f);
+                            planet.OrbitRadius = random.NextFloat(0.7f, 0.85f) + fBinaryOffset;
                         }
                     }
                     // other planets spawn random-ish distance away from previous one
