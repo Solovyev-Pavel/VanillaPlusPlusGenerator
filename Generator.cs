@@ -66,11 +66,6 @@ namespace GalacticScale.Generators
                 if (star.Type == EStarType.BlackHole)
                 {
                     star.radius *= 0.33f;
-                    //EnforceUnipolarMagnets(star);
-                }
-                else if (star.Type == EStarType.NeutronStar)
-                {
-                    //EnforceUnipolarMagnets(star);
                 }
             }
             Log("End");

@@ -776,6 +776,7 @@ namespace GalacticScale.Generators
             {
                 body.RotationPhase = random.Next(360);
                 body.OrbitInclination = random.NextFloat(-20.0f, 20.0f);
+                body.OrbitLongitude = random.NextFloat(0f, 359.5f);
                 body.OrbitPhase = random.Next(360);
                 body.Obliquity = random.NextFloat() * 20;
                 body.RotationPeriod = random.Next(80, 3600);
@@ -798,30 +799,6 @@ namespace GalacticScale.Generators
                     body.RotationPeriod = body.OrbitalPeriod;
                 }
             }
-        }
-
-        /// <summary>Method to ensure black holes and neutron stars always have unipolar magnets</summary>
-        /// <param name="star">Target "star"</param>
-        private void EnforceUnipolarMagnets(GSStar star)
-        {
-            if (!SystemHasUnipolarMagents(star))
-            {
-                var planet = star.TelluricBodies[0];
-                planet.veinSettings = planet.GsTheme.VeinSettings.Clone();
-                planet.veinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Mag, 1, 2, 0.3f, 0.3f, 5, 10, true));
-            }
-        }
-
-        /// <summary>Method to check that there are unipolar magnets in the system</summary>
-        /// <param name="star">Target "star"</param>
-        /// <returns>TRUE if there are unipolar magnets in the target system, FALSE - otherwise</returns>
-        private bool SystemHasUnipolarMagents(GSStar star)
-        {
-            foreach (var p in star.Bodies)
-            {
-                if (p.GsTheme.VeinSettings.VeinTypes.ContainsVein(EVeinType.Mag)) { return true; }
-            }
-            return false;
         }
 
         // //////////////////////// VARIOUS METHODS //////////////////////// //
