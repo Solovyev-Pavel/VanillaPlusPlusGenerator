@@ -66,9 +66,9 @@ namespace GalacticScale.Generators
 
         // //////////////////// STAR SYSTEM MODIFICATION /////////////////// //
 
-        /// <summary>Method to create a companion star within a given system</summary>
+        /// <summary>Method to create a companion star (or two) within a given system</summary>
         /// <param name="star">Target parent star</param>
-        private void CreateBinarySystem(GSStar star)
+        private void CreateMultistarSystem(GSStar star)
         {
             if (star.genData.Get("hasBinary", new Val(false)).Bool(false) || star.genData.Get("binary", new Val(false).Bool(false))) { return; }
 
@@ -611,7 +611,7 @@ namespace GalacticScale.Generators
             // star's habitable zone
             SystemZones sz = new SystemZones(star.luminosity, star.Type, star.Spectr);
             // offset in case of binary system
-            float fBinaryOffset = star.genData.Get("binaryOffset", new Val(0f)).Float(0f);
+            float fBinaryOffset = star.genData.Get("binaryOffset", new Val(0f)).Float(0f) * 30f; // 1LY = 60 AU
 
             // planets
             bool bInnerPlanetIsClose = random.NextPick(0.5);

@@ -55,7 +55,7 @@ namespace GalacticScale.Generators
                 var star = new GSStar(random.Next(), SystemNames.GetName(i), starType.spectr, starType.type, new GSPlanets());
 
                 GSSettings.Stars.Add(star);
-                CreateBinarySystem(star);
+                CreateMultistarSystem(star);
                 GeneratePlanetsForStar(star);
                 EnsureProperOrbitalPeriods(star);
             }
