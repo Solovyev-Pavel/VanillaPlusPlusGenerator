@@ -70,14 +70,12 @@ namespace GalacticScale.Generators
         /// <param name="star">Target parent star</param>
         private void CreateBinarySystem(GSStar star)
         {
-            // no trinary systems yet!
-            if (star.genData != null && star.genData.ContainsKey("hasBinary") && star.genData.Get("hasBinary").Bool()) { return; }
-            if (star.genData != null && star.genData.ContainsKey("binary") && star.genData.Get("binary").Bool()) { return; }
+            if (star.genData.Get("hasBinary", new Val(false)).Bool(false) || star.genData.Get("binary", new Val(false).Bool(false))) { return; }
 
             double chance = preferences.GetDouble("binaryStarChance", 25) * 0.01;
             // black holes and neutron stars have far lower chance of having a companion, white dwarves never have one
             if (star.Type == EStarType.NeutronStar || star.Type == EStarType.BlackHole)
-                chance *= 0.1;
+                chance *= 0.2;
             else if (star.Type == EStarType.WhiteDwarf)
                 chance = 0;
 
@@ -95,6 +93,25 @@ namespace GalacticScale.Generators
                 binary.position = new VectorLF3(offset, 0, 0);
                 star.luminosity += binary.luminosity;
                 binary.luminosity = 0;
+
+                if (random.NextPick(0.5) && binary.Spectr != ESpectrType.X)
+                {
+                    var trinary = GSSettings.Stars.Add(new GSStar(random.Next(), star.Name + "-C", companionType.Item2, companionType.Item1, new GSPlanets()));
+                    trinary.genData.Add("binary", true);
+                    binary.genData.Add("hasBinary", true);
+                    binary.BinaryCompanion = trinary.Name;
+                    trinary.radius = binary.radius;
+                    trinary.Decorative = true;
+
+                    double angle = random.NextDouble(Math.PI / 2, 3 * Math.PI / 2);
+                    double sin = Math.Sin(angle);
+                    double cos = Math.Cos(angle);
+                    binary.genData.Add("binaryOffset", 2* offset);
+                    trinary.position = new VectorLF3(-offset + offset * cos, 0, offset * sin);
+
+                    star.luminosity += trinary.luminosity;
+                    trinary.luminosity = 0;
+                }
             }
         }
 
@@ -594,9 +611,7 @@ namespace GalacticScale.Generators
             // star's habitable zone
             SystemZones sz = new SystemZones(star.luminosity, star.Type, star.Spectr);
             // offset in case of binary system
-            float fBinaryOffset = 0f;
-            if (star.genData != null && star.genData.ContainsKey("binaryOffset"))
-                fBinaryOffset = star.genData.Get("binaryOffset").Float(0f);
+            float fBinaryOffset = star.genData.Get("binaryOffset", new Val(0f)).Float(0f);
 
             // planets
             bool bInnerPlanetIsClose = random.NextPick(0.5);

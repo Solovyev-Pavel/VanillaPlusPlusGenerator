@@ -102,7 +102,7 @@ namespace GalacticScale.Generators
 
             UI.Add("galaxyDensity", Options.Add(GSUI.Slider("Galaxy Density", 1, 5, 9, "galaxyDensity")));
             UI.Add("defaultStarCount", Options.Add(GSUI.Slider("Default StarCount", 16, 64, 96, "defaultStarCount", DefaultStarCountCallback)));
-            UI.Add("binaryStarChance", Options.Add(GSUI.Slider("Binary Star Chance", 0, 25, 50, "binaryStarChance")));
+            UI.Add("binaryStarChance", Options.Add(GSUI.Slider("Binary and Trinary Star Chance", 0, 25, 50, "binaryStarChance")));
 
             Options.Add(GSUI.Spacer());
             Options.Add(GSUI.Separator());
