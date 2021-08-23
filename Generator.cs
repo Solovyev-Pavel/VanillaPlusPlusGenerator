@@ -49,6 +49,7 @@ namespace GalacticScale.Generators
             Log("Generating Stars");
 
             GenerateStartingSystem();
+            CreateMultistarSystem(this.birthStar);
             for (var i = 1; i < starCount; i++)
             {
                 var starType = ChooseStarType();
