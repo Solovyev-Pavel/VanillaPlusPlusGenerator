@@ -611,7 +611,7 @@ namespace GalacticScale.Generators
             // star's habitable zone
             SystemZones sz = new SystemZones(star.luminosity, star.Type, star.Spectr);
             // offset in case of binary system
-            float fBinaryOffset = star.genData.Get("binaryOffset", new Val(0f)).Float(0f) * 30f; // 1LY = 60 AU
+            float fBinaryOffset = star.genData.Get("binaryOffset", new Val(0f)).Float(0f) * 60f; // 1LY = 60 AU
 
             // planets
             bool bInnerPlanetIsClose = random.NextPick(0.5);
@@ -640,11 +640,11 @@ namespace GalacticScale.Generators
                     {
                         if (bInnerPlanetIsClose)
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 2.0f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius + fBinaryOffset;
+                            planet.OrbitRadius = Mathf.Max(fBinaryOffset * 2.0f, star.RadiusAU * 2.0f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius;
                         }
                         else
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.9f) * sz.temperateZoneEdge) + planet.SystemRadius + fBinaryOffset;
+                            planet.OrbitRadius = Mathf.Max(fBinaryOffset * 2.0f, star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.9f) * sz.temperateZoneEdge) + planet.SystemRadius;
                         }
                     }
                     // second planet has orbit gap variance depending on whether the innermost one is close to the star
@@ -673,11 +673,11 @@ namespace GalacticScale.Generators
                     {
                         if (bInnerPlanetIsClose)
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 1.25f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius + fBinaryOffset;
+                            planet.OrbitRadius = Mathf.Max(fBinaryOffset * 2.0f, star.RadiusAU * 1.25f, random.NextFloat(sz.warmZoneEdge * 0.5f, sz.warmZoneEdge)) + planet.SystemRadius;
                         }
                         else
                         {
-                            planet.OrbitRadius = Mathf.Max(star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.85f) * (sz.coldZoneEdge - sz.temperateZoneEdge) + star.RadiusAU * 0.25f) + planet.SystemRadius + fBinaryOffset;
+                            planet.OrbitRadius = Mathf.Max(fBinaryOffset * 2.0f, star.RadiusAU * 3.0f, random.NextFloat(0.7f, 0.85f) * (sz.coldZoneEdge - sz.temperateZoneEdge) + star.RadiusAU * 0.25f) + planet.SystemRadius;
                         }
                     }
                     // second planet has orbit gap variance depending on whether the innermost one is close to the star
@@ -706,11 +706,11 @@ namespace GalacticScale.Generators
                     {
                         if (bInnerPlanetIsClose)
                         {
-                            planet.OrbitRadius = random.NextFloat(0.25f, 0.45f) + fBinaryOffset;
+                            planet.OrbitRadius = Mathf.Max(fBinaryOffset * 2.0f, random.NextFloat(0.25f, 0.45f));
                         }
                         else
                         {
-                            planet.OrbitRadius = random.NextFloat(0.7f, 0.85f) + fBinaryOffset;
+                            planet.OrbitRadius = Mathf.Max(fBinaryOffset * 2.0f, random.NextFloat(0.7f, 0.85f));
                         }
                     }
                     // other planets spawn random-ish distance away from previous one
