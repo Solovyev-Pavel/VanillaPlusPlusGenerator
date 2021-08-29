@@ -832,7 +832,7 @@ namespace GalacticScale.Generators
                 }
 
                 // rare resource chance
-                float fRareChance = preferences.GetFloat("rareChance", 1);
+                float fRareChance = preferences.GetFloat("rareChance", 100) * 0.01f - 1;
                 body.rareChance = fRareChance;
             }
         }
