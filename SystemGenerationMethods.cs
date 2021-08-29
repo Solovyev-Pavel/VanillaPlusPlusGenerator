@@ -83,7 +83,7 @@ namespace GalacticScale.Generators
                 chance = 0;
 
             // dream start + bright star == very high chance of companion
-            if (bDreamStatringSystem && bIsBrightStar)
+            if (bDreamStatringSystem && star == birthStar && bIsBrightStar)
                 chance = Math.Max(chance + 0.5, 1.0);
 
             if (random.NextPick(chance))
@@ -91,7 +91,7 @@ namespace GalacticScale.Generators
                 (EStarType, ESpectrType) companionType = ConvertEStarValue(ChooseCompanionStarType(star));
 
                 // dream start with a bright home star has a very high chance of having black hole or neutron star as companion
-                if (bDreamStatringSystem && bIsBrightStar && random.NextPick(0.5))
+                if (bDreamStatringSystem && star == birthStar && bIsBrightStar && random.NextPick(0.5))
                 {
                     if (random.NextPick(0.5))
                         companionType = (EStarType.NeutronStar, ESpectrType.X);
