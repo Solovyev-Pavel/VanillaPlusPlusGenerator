@@ -832,10 +832,10 @@ namespace GalacticScale.Generators
                 {
                     switch (star.Spectr)
                     {
-                        case ESpectrType.F: star.luminosity *= Mathf.Pow(1.25f, 3); break;
+                        case ESpectrType.F: star.luminosity *= Mathf.Pow(1.2f, 3); break;
                         case ESpectrType.A: star.luminosity *= Mathf.Pow(1.35f, 3); break;
                         case ESpectrType.B: star.luminosity *= Mathf.Pow(1.5f, 3); break;
-                        case ESpectrType.O: star.luminosity *= Mathf.Pow(1.75f, 3); break;
+                        case ESpectrType.O: star.luminosity *= Mathf.Pow(1.65f, 3); break;
                     }
                 }
             }
