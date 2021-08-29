@@ -73,15 +73,32 @@ namespace GalacticScale.Generators
             if (star.genData.Get("hasBinary", new Val(false)).Bool(false) || star.genData.Get("binary", new Val(false).Bool(false))) { return; }
 
             double chance = preferences.GetDouble("binaryStarChance", 25) * 0.01;
+            bool bDreamStatringSystem = preferences.GetBool("dreamSystem", false);
+            bool bIsBrightStar = (star.Spectr == ESpectrType.A || star.Spectr == ESpectrType.B || star.Spectr == ESpectrType.O);
+
             // black holes and neutron stars have far lower chance of having a companion, white dwarves never have one
             if (star.Type == EStarType.NeutronStar || star.Type == EStarType.BlackHole)
                 chance *= 0.2;
             else if (star.Type == EStarType.WhiteDwarf)
                 chance = 0;
 
+            // dream start + bright star == very high chance of companion
+            if (bDreamStatringSystem && bIsBrightStar)
+                chance = Math.Max(chance + 0.5, 1.0);
+
             if (random.NextPick(chance))
             {
                 (EStarType, ESpectrType) companionType = ConvertEStarValue(ChooseCompanionStarType(star));
+
+                // dream start with a bright home star has a very high chance of having black hole or neutron star as companion
+                if (bDreamStatringSystem && bIsBrightStar && random.NextPick(0.5))
+                {
+                    if (random.NextPick(0.5))
+                        companionType = (EStarType.NeutronStar, ESpectrType.X);
+                    else
+                        companionType = (EStarType.BlackHole, ESpectrType.X);
+                }
+
                 var binary = GSSettings.Stars.Add(new GSStar(random.Next(), star.Name + "-B", companionType.Item2, companionType.Item1, new GSPlanets()));
                 binary.genData.Add("binary", true);
                 star.genData.Add("hasBinary", true);
@@ -265,7 +282,7 @@ namespace GalacticScale.Generators
             GSSettings.Stars.Add(star);
             birthStar = star;
 
-            bool bDreamStarterSystem = preferences.GetBool("dreamSystem", true);
+            bool bDreamStarterSystem = preferences.GetBool("dreamSystem", false);
             // normal starter system generation
             if (!bDreamStarterSystem)
             {
