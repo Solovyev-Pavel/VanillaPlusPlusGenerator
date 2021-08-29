@@ -89,6 +89,7 @@ namespace GalacticScale.Generators
             preferences.Set("freqBG", 1);
             preferences.Set("chanceGas", 25);
             preferences.Set("chanceMoon", 25);
+            preferences.Set("rareChance", 1);
 
             preferences.Set("dreamSystem", false);
         }
@@ -156,6 +157,7 @@ namespace GalacticScale.Generators
 
             UI.Add("chanceGas", Options.Add(GSUI.Slider("Chance Gas", 10, 20, 50, "chanceGas")));
             UI.Add("chanceMoon", Options.Add(GSUI.Slider("Chance Moon", 10, 20, 80, "chanceMoon")));
+            UI.Add("rareChance", Options.Add(GSUI.Slider("Rare Resource Chance", 1, 1, 2, 0.125f, "rareChance")));
         }
 
         /// <summary>Callback for setting default star count for the cluster</summary>

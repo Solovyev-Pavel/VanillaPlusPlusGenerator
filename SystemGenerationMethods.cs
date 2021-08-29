@@ -813,6 +813,10 @@ namespace GalacticScale.Generators
                 {
                     body.RotationPeriod = body.OrbitalPeriod;
                 }
+
+                // rare resource chance
+                float fRareChance = preferences.GetFloat("rareChance", 1);
+                body.rareChance = fRareChance;
             }
         }
 
