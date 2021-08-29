@@ -826,13 +826,12 @@ namespace GalacticScale.Generators
             {
                 foreach (var star in GSSettings.Stars)
                 {
-                    if (star.Spectr == ESpectrType.F || star.Spectr == ESpectrType.A)
+                    switch (star.Spectr)
                     {
-                        star.luminosity *= 1.953f; // 1.25^3
-                    }
-                    else if (star.Spectr == ESpectrType.B || star.Spectr == ESpectrType.O)
-                    {
-                        star.luminosity *= 3.375f; // 1.5^3
+                        case ESpectrType.F: star.luminosity *= Mathf.Pow(1.25f, 3); break;
+                        case ESpectrType.A: star.luminosity *= Mathf.Pow(1.35f, 3); break;
+                        case ESpectrType.B: star.luminosity *= Mathf.Pow(1.5f, 3); break;
+                        case ESpectrType.O: star.luminosity *= Mathf.Pow(1.75f, 3); break;
                     }
                 }
             }
