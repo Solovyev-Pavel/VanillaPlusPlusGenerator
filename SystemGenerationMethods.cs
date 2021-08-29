@@ -23,8 +23,8 @@ namespace GalacticScale.Generators
             { EStar.B, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.NeutronStar, EStar.WhiteDwarf } },
             { EStar.O, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.A, EStar.NeutronStar, EStar.WhiteDwarf } },
             { EStar.RedGiant, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.A, EStar.BlackHole } },
-            { EStar.YellowGiant, new List<EStar> { EStar.M, EStar.K, EStar.F } },
-            { EStar.WhiteGiant, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.NeutronStar, EStar.WhiteDwarf, EStar.BlackHole } },
+            { EStar.YellowGiant, new List<EStar> { EStar.M, EStar.K, EStar.G, EStar.F } },
+            { EStar.WhiteGiant, new List<EStar> { EStar.M, EStar.K, EStar.G, EStar.F, EStar.NeutronStar, EStar.WhiteDwarf, EStar.BlackHole } },
             { EStar.BlueGiant, new List<EStar> { EStar.M, EStar.K, EStar.F, EStar.A, EStar.NeutronStar, EStar.WhiteDwarf } },
             { EStar.NeutronStar, new List<EStar> { EStar.NeutronStar, EStar.WhiteDwarf } },
             { EStar.BlackHole, new List<EStar> { EStar.NeutronStar, EStar.BlackHole } }
