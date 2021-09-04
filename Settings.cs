@@ -114,7 +114,7 @@ namespace GalacticScale.Generators
             UI.Add("birthPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Starting Planet Size", 100, 200, 400, "birthPlanetSize")));
             UI.Add("birthPlanetUnlock", Options.Add(GSUI.Checkbox("Starting Planet Unlock", false, "birthPlanetUnlock")));
             UI.Add("birthPlanetSiTi", Options.Add(GSUI.Checkbox("Starting Planet Si/Ti", false, "birthPlanetSiTi")));
-            UI.Add("noHomeworldRares", Options.Add(GSUI.Checkbox("Disable Rars on Starting Planet", true, "noHomeworldRares")));
+            UI.Add("noHomeworldRares", Options.Add(GSUI.Checkbox("Disable Rares on Starting Planet", true, "noHomeworldRares")));
 
             Options.Add(GSUI.Spacer());
             Options.Add(GSUI.Separator());
