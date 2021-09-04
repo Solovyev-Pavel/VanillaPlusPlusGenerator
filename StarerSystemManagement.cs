@@ -69,9 +69,9 @@ namespace GalacticScale.Generators
                 }
 
                 if (preferences.GetBool("noHomeworldRares", true))
-                {
                     birthPlanet.rareChance = 0;
-                }
+                else
+                    birthPlanet.rareChance = preferences.GetFloat("rareChance", 15) * 0.01f;
 
                 Log("Ensured Silicon & Titanium deposits on the birth planet.");
             }
