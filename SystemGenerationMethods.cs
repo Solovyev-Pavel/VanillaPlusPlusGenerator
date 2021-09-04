@@ -833,7 +833,7 @@ namespace GalacticScale.Generators
 
                 // rare resource chance
                 if (body != birthPlanet)
-                    body.rareChance = preferences.GetFloat("rareChance", 15) / 100;
+                    body.rareChance = preferences.GetFloat("rareChance", 15) * 0.01f;
             }
         }
 
