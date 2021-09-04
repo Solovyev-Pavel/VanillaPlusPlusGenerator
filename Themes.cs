@@ -47,6 +47,11 @@ namespace GalacticScale.Generators
 
                     smolTheme.atmosphereMaterial.Params["_Intensity"] = 0f;
                 }
+
+                theme.CustomGeneration = true;
+                theme.VeinSettings.Algorithm = "GS2";
+                if (theme.Algo == 7)
+                    theme.VeinSettings.Algorithm = "GS2W";
             }
 
             foreach (var s in smolLibrary)
