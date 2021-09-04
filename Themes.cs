@@ -52,7 +52,7 @@ namespace GalacticScale.Generators
             foreach (var s in smolLibrary)
                 if (!newLibrary.ContainsKey(s.Key)) newLibrary.Add(s.Key, s.Value);
                 else newLibrary[s.Key] = s.Value;
-            GS2.ThemeLibrary = GSSettings.ThemeLibrary = newLibrary;
+            GSSettings.ThemeLibrary = newLibrary;
         }
 
         /// <summary>Planet themes initialization</summary>

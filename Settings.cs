@@ -63,6 +63,7 @@ namespace GalacticScale.Generators
             preferences.Set("birthPlanetSize", 200);
             preferences.Set("birthPlanetUnlock", false);
             preferences.Set("birthPlanetSiTi", false);
+            preferences.Set("noHomeworldRares", true);
             preferences.Set("hugeGasGiants", false);
             preferences.Set("moreLikelyGasGiantMoons", false);
             preferences.Set("moonsAreSmall", true);
@@ -89,7 +90,7 @@ namespace GalacticScale.Generators
             preferences.Set("freqBG", 1);
             preferences.Set("chanceGas", 25);
             preferences.Set("chanceMoon", 25);
-            preferences.Set("rareChance", 100);
+            preferences.Set("rareChance", 15);
 
             preferences.Set("dreamSystem", false);
         }
@@ -113,6 +114,7 @@ namespace GalacticScale.Generators
             UI.Add("birthPlanetSize", Options.Add(GSUI.PlanetSizeSlider("Starting Planet Size", 100, 200, 400, "birthPlanetSize")));
             UI.Add("birthPlanetUnlock", Options.Add(GSUI.Checkbox("Starting Planet Unlock", false, "birthPlanetUnlock")));
             UI.Add("birthPlanetSiTi", Options.Add(GSUI.Checkbox("Starting Planet Si/Ti", false, "birthPlanetSiTi")));
+            UI.Add("noHomeworldRares", Options.Add(GSUI.Checkbox("Disable Rars on Starting Planet", true, "noHomeworldRares")));
 
             Options.Add(GSUI.Spacer());
             Options.Add(GSUI.Separator());
@@ -157,7 +159,7 @@ namespace GalacticScale.Generators
 
             UI.Add("chanceGas", Options.Add(GSUI.Slider("Chance Gas", 10, 20, 50, "chanceGas")));
             UI.Add("chanceMoon", Options.Add(GSUI.Slider("Chance Moon", 10, 20, 80, "chanceMoon")));
-            UI.Add("rareChance", Options.Add(GSUI.Slider("Rare Resource Vein Chance %", 100, 100, 200, 5, "rareChance")));
+            UI.Add("rareChance", Options.Add(GSUI.Slider("Rare Resource Vein Chance %", 0, 10, 100, 5, "rareChance")));
         }
 
         /// <summary>Callback for setting default star count for the cluster</summary>

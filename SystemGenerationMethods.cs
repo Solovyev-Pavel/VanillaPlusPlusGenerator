@@ -304,9 +304,9 @@ namespace GalacticScale.Generators
             // adjust starting system
             SetBirthPlanetTheme();
             SetBirthPlanetSize();
+            EnsureBirthSystemHasTi();
             EnsureBirthPlanetResources();
             EnsureBirthSystemBodies();
-            EnsureBirthSystemHasTi();
 
             Log($"Finished generating starting system. Starting system is {birthStar.Name}");
         }
@@ -832,8 +832,8 @@ namespace GalacticScale.Generators
                 }
 
                 // rare resource chance
-                float fRareChance = preferences.GetFloat("rareChance", 100) * 0.01f - 1;
-                body.rareChance = fRareChance;
+                if (body != birthPlanet)
+                    body.rareChance = preferences.GetFloat("rareChance", 15) / 100;
             }
         }
 
