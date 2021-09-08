@@ -346,7 +346,7 @@ namespace GalacticScale.Generators
             {
                 Log("Starting system generated with no habitable planets. Creating one by overwriting an existing planet.");
 
-                var index = Convert.ToInt32(Math.Floor((star.PlanetCount + 1) / 2.0));
+                var index = Convert.ToInt32(Math.Floor(star.Planets.Count / 2.0));
                 var planet = star.Planets[index];
 
                 // if this is a gas giant, try one of its moons
