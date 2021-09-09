@@ -509,10 +509,10 @@ namespace GalacticScale.Generators
             thirdPlanet.Theme = "IceGiant";
             // planet #3, moon #1 : frozen forest or ice malusol or ice lake or glacial plates or ice gelisol or frozen comet or barren
             List<string> fourthMoonThemes = new List<string>() { "IceLake", "IceGelisol", "Barren" };
-            if (GS2.externalThemes.ContainsKey("FrozenForest")) { secondMoonThemes.Add("FrozenForest"); }
-            if (GS2.externalThemes.ContainsKey("IceMalusol")) { secondMoonThemes.Add("IceMalusol"); }
-            if (GS2.externalThemes.ContainsKey("GlacialPlates")) { secondMoonThemes.Add("GlacialPlates"); }
-            if (GS2.externalThemes.ContainsKey("FrozenComet")) { secondMoonThemes.Add("FrozenComet"); }
+            if (GS2.externalThemes.ContainsKey("FrozenForest")) { fourthMoonThemes.Add("FrozenForest"); }
+            if (GS2.externalThemes.ContainsKey("IceMalusol")) { fourthMoonThemes.Add("IceMalusol"); }
+            if (GS2.externalThemes.ContainsKey("GlacialPlates")) { fourthMoonThemes.Add("GlacialPlates"); }
+            if (GS2.externalThemes.ContainsKey("FrozenComet")) { fourthMoonThemes.Add("FrozenComet"); }
             var fourthMoon = CreateCelestialBody(star, thirdPlanet, false, true);
             fourthMoon.Theme = random.Item(fourthMoonThemes);
             thirdPlanet.Moons.Add(fourthMoon);
