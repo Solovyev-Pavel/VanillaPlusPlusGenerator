@@ -816,14 +816,14 @@ namespace GalacticScale.Generators
                 if (random.NextDouble() < 0.02)
                     body.OrbitalPeriod = -1 * body.OrbitalPeriod; // Clockwise Rotation
 
-                if (body.OrbitRadius < 1f && random.NextFloat() < 0.5f)
+                if (body.OrbitRadius < 1f && random.NextFloat() < 0.25f)
                     body.RotationPeriod = body.OrbitalPeriod; // Tidal Lock
-                else if (body.OrbitRadius < 1.5f && random.NextFloat() < 0.2f)
+                else if (body.OrbitRadius < 1.5f && random.NextFloat() < 0.15f)
                     body.RotationPeriod = body.OrbitalPeriod / 2; // 1:2 Resonance
-                else if (body.OrbitRadius < 2f && random.NextFloat() < 0.1f)
+                else if (body.OrbitRadius < 2f && random.NextFloat() < 0.15f)
                     body.RotationPeriod = body.OrbitalPeriod / 4; // 1:4 Resonance
-                if (random.NextDouble() < 0.05) // Crazy Obliquity
-                    body.Obliquity = random.NextFloat(20f, 85f);
+                if (random.NextFloat() < 0.1f) // Crazy Obliquity
+                    body.Obliquity = random.NextFloat(20f, 90f);
 
                 // tidal-lock innermost planet if preference is set
                 if (body == star.Planets[0] && preferences.GetBool("tidalLockInnerPlanets", false))
