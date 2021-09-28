@@ -70,20 +70,24 @@ namespace GalacticScale.Generators
         /// <param name="star">Target parent star</param>
         private void CreateMultistarSystem(GSStar star)
         {
-            if (star.genData.Get("hasBinary", new Val(false)).Bool(false) || star.genData.Get("binary", new Val(false).Bool(false))) { return; }
+            if (star.genData.Get("hasBinary", new Val(false)).Bool(false) || star.genData.Get("binary", new Val(false)).Bool(false)) { return; }
 
             double chance = preferences.GetDouble("binaryStarChance", 25) * 0.01;
             bool bDreamStatringSystem = preferences.GetBool("dreamSystem", false);
             bool bIsBrightStar = (star.Spectr == ESpectrType.A || star.Spectr == ESpectrType.B || star.Spectr == ESpectrType.O);
 
-            // black holes and neutron stars have far lower chance of having a companion, white dwarves never have one
-            if (star.Type == EStarType.NeutronStar || star.Type == EStarType.BlackHole)
-                chance *= 0.2;
+            // - brighter stars are more likely to have companion stars
+            // - black holes and neutron stars, on the other hand, are far less likely to have a companion
+            // - white dwarves will never have companions
+            if (bIsBrightStar)
+                chance = Math.Max(chance * 1.5, 1.0);
+            else if (star.Type == EStarType.NeutronStar || star.Type == EStarType.BlackHole)
+                chance *= 0.33;
             else if (star.Type == EStarType.WhiteDwarf)
                 chance = 0;
 
             // dream start + bright star == very high chance of companion
-            if (bDreamStatringSystem && star == birthStar && bIsBrightStar)
+            if (bDreamStatringSystem && star == birthStar)
                 chance = Math.Max(chance + 0.5, 1.0);
 
             if (random.NextPick(chance))
@@ -99,35 +103,41 @@ namespace GalacticScale.Generators
                         companionType = (EStarType.BlackHole, ESpectrType.X);
                 }
 
-                var binary = GSSettings.Stars.Add(new GSStar(random.Next(), star.Name + "-B", companionType.Item2, companionType.Item1, new GSPlanets()));
-                binary.genData.Add("binary", true);
+                var binaryCompanion = GSSettings.Stars.Add(new GSStar(random.Next(), star.Name + "-B", companionType.Item2, companionType.Item1, new GSPlanets()));
+                binaryCompanion.genData.Add("binary", true);
                 star.genData.Add("hasBinary", true);
-                star.BinaryCompanion = binary.Name;
-                binary.radius = StarDefaults.Radius(binary) * 0.75f;
-                binary.Decorative = true;
-                var offset = (star.RadiusLY + binary.RadiusLY) * random.NextFloat(4.0f, 6.0f);
-                star.genData.Add("binaryOffset", offset);
-                binary.position = new VectorLF3(offset, 0, 0);
-                star.luminosity += binary.luminosity;
-                binary.luminosity = 0;
+                star.BinaryCompanion = binaryCompanion.Name;
 
-                if (random.NextPick(0.5) && binary.Spectr != ESpectrType.X)
+                if (star.Type == EStarType.GiantStar)
+                    binaryCompanion.radius = StarDefaults.Radius(binaryCompanion) * 1.5f;
+                else
+                    binaryCompanion.radius = StarDefaults.Radius(binaryCompanion) * 0.75f;
+
+                binaryCompanion.Decorative = true;
+                var binaryOffset = (star.RadiusLY + binaryCompanion.RadiusLY) * random.NextFloat(4.0f, 6.0f);
+                star.genData.Add("binaryOffset", binaryOffset);
+                binaryCompanion.position = new VectorLF3(binaryOffset, 0, 0);
+                star.luminosity += binaryCompanion.luminosity;
+                binaryCompanion.luminosity = 0;
+
+                if (random.NextPick(0.5) && binaryCompanion.Spectr != ESpectrType.X)
                 {
-                    var trinary = GSSettings.Stars.Add(new GSStar(random.Next(), star.Name + "-C", companionType.Item2, companionType.Item1, new GSPlanets()));
-                    trinary.genData.Add("binary", true);
-                    binary.genData.Add("hasBinary", true);
-                    binary.BinaryCompanion = trinary.Name;
-                    trinary.radius = binary.radius;
-                    trinary.Decorative = true;
+                    var trinaryCompanion = GSSettings.Stars.Add(new GSStar(random.Next(), star.Name + "-C", companionType.Item2, companionType.Item1, new GSPlanets()));
+                    trinaryCompanion.genData.Add("binary", true);
+                    binaryCompanion.genData.Add("hasBinary", true);
+                    binaryCompanion.BinaryCompanion = trinaryCompanion.Name;
+                    trinaryCompanion.radius = binaryCompanion.radius;
+                    trinaryCompanion.Decorative = true;
 
                     double angle = random.NextDouble(Math.PI / 2, 3 * Math.PI / 2);
                     double sin = Math.Sin(angle);
                     double cos = Math.Cos(angle);
-                    binary.genData.Add("binaryOffset", 2* offset);
-                    trinary.position = new VectorLF3(-offset + offset * cos, 0, offset * sin);
+                    var trinaryOffset = (star.RadiusLY + binaryCompanion.RadiusLY) * random.NextFloat(4.0f, 6.0f);
+                    binaryCompanion.genData.Add("binaryOffset", trinaryOffset);
+                    trinaryCompanion.position = new VectorLF3(-binaryOffset + trinaryOffset * cos, 0, trinaryOffset * sin);
 
-                    star.luminosity += trinary.luminosity;
-                    trinary.luminosity = 0;
+                    star.luminosity += trinaryCompanion.luminosity;
+                    trinaryCompanion.luminosity = 0;
                 }
             }
         }
