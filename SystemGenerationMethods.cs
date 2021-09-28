@@ -823,15 +823,29 @@ namespace GalacticScale.Generators
                 body.Obliquity = random.NextFloat() * 20;
                 body.RotationPeriod = random.Next(80, 3600);
 
-                if (random.NextDouble() < 0.02)
-                    body.OrbitalPeriod = -1 * body.OrbitalPeriod; // Clockwise Rotation
+                if (body.OrbitRadius < 1f && random.NextDouble() < 0.15) // Tidal Lock
+                {
+                    //Log($"object {body.Name} is tidally locked!");
+                    body.RotationPeriod = body.OrbitalPeriod;
+                }
+                else if (random.NextDouble() < 0.15) // 1:2 Resonance
+                {
+                    //Log($"object {body.Name} has 1:2 orbital resonanse!");
+                    body.RotationPeriod = Convert.ToInt32(body.OrbitalPeriod / 2);
+                    body.OrbitalPeriod = body.RotationPeriod * 2;
+                }
+                else if (random.NextDouble() < 0.15) // 1:4 Resonance
+                {
+                    //Log($"object {body.Name} has 1:4 orbital resonanse!");
+                    body.RotationPeriod = Convert.ToInt32(body.OrbitalPeriod / 4);
+                    body.OrbitalPeriod = body.RotationPeriod * 4;
+                }
+                else if (random.NextDouble() < 0.15) // Reverse Rotation
+                {
+                    //Log($"object {body.Name} has reverse rotation!");
+                    body.RotationPeriod = -1 * Mathf.Abs(body.RotationPeriod);
+                }
 
-                if (body.OrbitRadius < 1f && random.NextFloat() < 0.25f)
-                    body.RotationPeriod = body.OrbitalPeriod; // Tidal Lock
-                else if (body.OrbitRadius < 1.5f && random.NextFloat() < 0.15f)
-                    body.RotationPeriod = body.OrbitalPeriod / 2; // 1:2 Resonance
-                else if (body.OrbitRadius < 2f && random.NextFloat() < 0.15f)
-                    body.RotationPeriod = body.OrbitalPeriod / 4; // 1:4 Resonance
                 if (random.NextFloat() < 0.1f) // Crazy Obliquity
                     body.Obliquity = random.NextFloat(20f, 90f);
 
