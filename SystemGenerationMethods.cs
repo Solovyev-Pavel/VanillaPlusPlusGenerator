@@ -287,6 +287,21 @@ namespace GalacticScale.Generators
                 starType.spectr = ESpectrType.O;
                 starType.type = EStarType.GiantStar;
             }
+            else if (requestedType == "WhiteDwarf")
+            {
+                starType.spectr = ESpectrType.X;
+                starType.type = EStarType.WhiteDwarf;
+            }
+            else if (requestedType == "NeutronStar")
+            {
+                starType.spectr = ESpectrType.X;
+                starType.type = EStarType.NeutronStar;
+            }
+            else if (requestedType == "BlackHole")
+            {
+                starType.spectr = ESpectrType.X;
+                starType.type = EStarType.BlackHole;
+            }
 
             var star = new GSStar(random.Next(), SystemNames.GetName(0), starType.spectr, starType.type, new GSPlanets());
             GSSettings.Stars.Add(star);
