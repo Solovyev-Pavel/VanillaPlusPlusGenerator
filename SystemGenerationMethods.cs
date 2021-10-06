@@ -51,7 +51,8 @@ namespace GalacticScale.Generators
 
                 // if this is a normal star, zones are dependent on luminosity
                 // but we need to shift zones outwards for giant stars
-                float multiplier = (starType == EStarType.GiantStar) ? 8.0f : 1.0f;
+                float multiplier = (starType == EStarType.GiantStar) ? (7.0f - 0.5f * Mathf.Pow(luminosity, 0.25f)) : 1.0f;
+
                 warmZoneEdge = multiplier * Mathf.Sqrt(luminosity / 2.5f);
                 temperateZoneEdge = multiplier * Mathf.Sqrt(luminosity / 1.1f);
                 coldZoneEdge = multiplier * Mathf.Sqrt(luminosity / 0.53f);
