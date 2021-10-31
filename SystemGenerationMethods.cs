@@ -116,6 +116,8 @@ namespace GalacticScale.Generators
 
                 binaryCompanion.Decorative = true;
                 var binaryOffset = (star.RadiusLY + binaryCompanion.RadiusLY) * random.NextFloat(4.0f, 6.0f);
+                if (star.Type == EStarType.GiantStar)
+                    binaryOffset *= 0.66f;
                 star.genData.Add("binaryOffset", binaryOffset);
                 binaryCompanion.position = new VectorLF3(binaryOffset, 0, 0);
                 star.luminosity += binaryCompanion.luminosity;
@@ -134,6 +136,8 @@ namespace GalacticScale.Generators
                     double sin = Math.Sin(angle);
                     double cos = Math.Cos(angle);
                     var trinaryOffset = (star.RadiusLY + binaryCompanion.RadiusLY) * random.NextFloat(4.0f, 6.0f);
+                    if (star.Type == EStarType.GiantStar)
+                        trinaryOffset *= 0.66f;
                     binaryCompanion.genData.Add("binaryOffset", trinaryOffset);
                     trinaryCompanion.position = new VectorLF3(-binaryOffset + trinaryOffset * cos, 0, trinaryOffset * sin);
 
