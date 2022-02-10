@@ -21,7 +21,7 @@ namespace GalacticScale.Generators
         public string Name => "Vanilla++";
         public string Author => "innominata, NHunter";
         public string Description => "A galaxy generator trying to mimic vanilla, but with additional options";
-        public string Version => "0.0.6";
+        public string Version => "0.0.7";
         public string GUID => "space.customizing.generators.vanilla_plus_plus";
 
         // /////////////////////////// METHODS /////////////////////////// //
