@@ -93,6 +93,7 @@ namespace GalacticScale.Generators
             preferences.Set("rareChance", 15);
 
             preferences.Set("dreamSystem", false);
+            preferences.Set("luminosityMultiplier", 1.5f);
         }
 
         /// <summary>Generate UI elements</summary>

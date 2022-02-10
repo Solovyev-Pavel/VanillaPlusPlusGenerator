@@ -821,14 +821,14 @@ namespace GalacticScale.Generators
             // actual in-game luminosity if roughly proportional to the cubic root of star.luminosity
             if (preferences.GetBool("luminosityBoost", false))
             {
+                float luminosityMultiplier = preferences.GetFloat("luminosityMultiplier", 1.5f);
                 foreach (var star in GSSettings.Stars)
                 {
-                    switch (star.Spectr)
+                    if (star.luminosity > 1.0f)
                     {
-                        case ESpectrType.F: star.luminosity *= Mathf.Pow(1.2f, 3); break;
-                        case ESpectrType.A: star.luminosity *= Mathf.Pow(1.35f, 3); break;
-                        case ESpectrType.B: star.luminosity *= Mathf.Pow(1.5f, 3); break;
-                        case ESpectrType.O: star.luminosity *= Mathf.Pow(1.65f, 3); break;
+                        float dysonLuminosity = Mathf.Pow(star.luminosity, 0.33f);
+                        float dysonLuminosityNew = (Mathf.Pow(dysonLuminosity, 1.15f) - 1) * luminosityMultiplier + 1;
+                        star.luminosity = Mathf.Pow(dysonLuminosityNew, 3);
                     }
                 }
             }
