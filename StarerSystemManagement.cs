@@ -161,33 +161,24 @@ namespace GalacticScale.Generators
             star.Planets = new GSPlanets();
 
             // planet #1 : lava or hot obsidian or molten oasis
-            List<string> planet1_themes = new List<string>() { "Lava" };
-            if (GS2.externalThemes.ContainsKey("HotObsidian")) { planet1_themes.Add("HotObsidian"); }
-            if (GS2.externalThemes.ContainsKey("MoltenOasis")) { planet1_themes.Add("MoltenOasis"); }
             var planet1 = CreateCelestialBody(star, null, false, false);
-            planet1.Theme = random.Item(planet1_themes);
+            planet1.Theme = random.Item(Generator_GetLavaPlanetTypes());
             star.Planets.Add(planet1);
 
             // planet #2 : gas giant
             var planet2 = CreateCelestialBody(star, null, true, false);
             planet2.Theme = "GasGiant";
             // planet #2, moon #1 : sulfur sea or volcanic ash
-            List<string> planet2_moon1_themes = new List<string>() { "VolcanicAsh" };
-            if (GS2.externalThemes.ContainsKey("SulfurSea")) { planet2_moon1_themes.Add("SulfurSea"); }
             var planet2_moon1 = CreateCelestialBody(star, planet2, false, true);
-            planet2_moon1.Theme = random.Item(planet2_moon1_themes);
+            planet2_moon1.Theme = random.Item(Generator_GetAcidPlanetTypes());
             planet2.Moons.Add(planet2_moon1);
             // planet #2, moon #2 : <home planet>
-            List<string> planet2_moon2_themes = new List<string>() { "OceanicJungle", "Sakura", "Prairie", "Mediterranean" };
-            if (GS2.externalThemes.ContainsKey("Swamp")) { planet2_moon2_themes.Add("Swamp"); }
-            if (GS2.externalThemes.ContainsKey("FloodedMesa")) { planet2_moon2_themes.Add("FloodedMesa"); }
             var planet2_moon2 = CreateCelestialBody(star, planet2, false, true);
-            planet2_moon2.Theme = random.Item(planet2_moon2_themes);
+            planet2_moon2.Theme = random.Item(Generator_GetHomePlanetTypes());
             planet2.Moons.Add(planet2_moon2);
             // planet #2, moon #3 : gobi or arid desert or red stone
-            List<string> planet2_moon3_themes = new List<string>() { "Gobi", "AridDesert", "RedStone", "Hurricane" };
             var planet2_moon3 = CreateCelestialBody(star, planet2, false, true);
-            planet2_moon3.Theme = random.Item(planet2_moon3_themes);
+            planet2_moon3.Theme = random.Item(Generator_GetDryPlanetTypes());
             planet2.Moons.Add(planet2_moon3);
             star.Planets.Add(planet2);
 
@@ -195,14 +186,8 @@ namespace GalacticScale.Generators
             var planet3 = CreateCelestialBody(star, null, true, false);
             planet3.Theme = "IceGiant";
             // planet #3, moon #1 : frozen forest or ice malusol or ice lake or glacial plates or ice gelisol or frozen comet or barren
-            List<string> planet3_moon1_themes = new List<string>() { "IceLake", "IceGelisol", "Barren" };
-            if (GS2.externalThemes.ContainsKey("FrozenForest")) { planet3_moon1_themes.Add("FrozenForest"); }
-            if (GS2.externalThemes.ContainsKey("IceMalusol")) { planet3_moon1_themes.Add("IceMalusol"); }
-            if (GS2.externalThemes.ContainsKey("GlacialPlates")) { planet3_moon1_themes.Add("GlacialPlates"); }
-            if (GS2.externalThemes.ContainsKey("HydrogenOcean")) { planet3_moon1_themes.Add("HydrogenOcean"); }
-            if (GS2.externalThemes.ContainsKey("DeuteriumOcean")) { planet3_moon1_themes.Add("DeuteriumOcean"); }
             var planet3_moon1 = CreateCelestialBody(star, planet3, false, true);
-            planet3_moon1.Theme = random.Item(planet3_moon1_themes);
+            planet3_moon1.Theme = random.Item(Generator_GetColdPlanetTypes());
             planet3.Moons.Add(planet3_moon1);
             star.Planets.Add(planet3);
 
@@ -230,16 +215,11 @@ namespace GalacticScale.Generators
             star.Planets = new GSPlanets();
 
             // planet #1 : lava or hot obsidian or molten oasis
-            List<string> planet1_themes = new List<string>() { "Lava" };
-            if (GS2.externalThemes.ContainsKey("HotObsidian")) { planet1_themes.Add("HotObsidian"); }
-            if (GS2.externalThemes.ContainsKey("MoltenOasis")) { planet1_themes.Add("MoltenOasis"); }
             var planet1 = CreateCelestialBody(star, null, false, false);
-            planet1.Theme = random.Item(planet1_themes);
+            planet1.Theme = random.Item(Generator_GetLavaPlanetTypes());
             // planet #1, moon #1 : sulfur sea or volcanic ash
-            List<string> planet1_moon1_themes = new List<string>() { "VolcanicAsh" };
-            if (GS2.externalThemes.ContainsKey("SulfurSea")) { planet1_moon1_themes.Add("SulfurSea"); }
             var planet1_moon1 = CreateCelestialBody(star, planet1, false, true);
-            planet1_moon1.Theme = random.Item(planet1_moon1_themes);
+            planet1_moon1.Theme = random.Item(Generator_GetAcidPlanetTypes());
             planet1.Moons.Add(planet1_moon1);
             star.Planets.Add(planet1);
 
@@ -247,32 +227,22 @@ namespace GalacticScale.Generators
             var planet2 = CreateCelestialBody(star, null, true, false);
             planet2.Theme = "GasGiant";
             // planet #2, moon #1 : prairie or oceanic jungle or sakura
-            List<string> planet2_moon1_themes = new List<string>() { "OceanicJungle", "Sakura", "Prairie" };
             var planet2_moon1 = CreateCelestialBody(star, planet2, false, true);
-            planet2_moon1.Theme = random.Item(planet2_moon1_themes);
+            planet2_moon1.Theme = random.Item(Generator_GetWetPlanetTypes());
             planet2.Moons.Add(planet2_moon1);
             // planet #2, moon #2 : <home planet>
-            List<string> planet2_moon2_themes = new List<string>() { "OceanicJungle", "Sakura", "Prairie", "Mediterranean" };
-            if (GS2.externalThemes.ContainsKey("Swamp")) { planet2_moon2_themes.Add("Swamp"); }
             var planet2_moon2 = CreateCelestialBody(star, planet2, false, true);
-            planet2_moon2.Theme = random.Item(planet2_moon2_themes);
+            planet2_moon2.Theme = random.Item(Generator_GetHomePlanetTypes());
             planet2.Moons.Add(planet2_moon2);
             // planet #2, moon #3 : ice lake or ice gelisol
-            List<string> planet2_moon3_themes = new List<string>() { "IceLake", "IceGelisol" };
             var planet2_moon3 = CreateCelestialBody(star, planet2, false, true);
-            planet2_moon3.Theme = random.Item(planet2_moon3_themes);
+            planet2_moon3.Theme = random.Item(Generator_GetIcyPlanetTypes());
             planet2.Moons.Add(planet2_moon3);
             star.Planets.Add(planet2);
 
             // planet #3 : ice lake or ice gelisol
-            List<string> planet3_themes = new List<string>() { "IceLake", "IceGelisol" };
-            if (GS2.externalThemes.ContainsKey("FrozenForest")) { planet3_themes.Add("FrozenForest"); }
-            if (GS2.externalThemes.ContainsKey("IceMalusol")) { planet3_themes.Add("IceMalusol"); }
-            if (GS2.externalThemes.ContainsKey("GlacialPlates")) { planet3_themes.Add("GlacialPlates"); }
-            if (GS2.externalThemes.ContainsKey("HydrogenOcean")) { planet3_themes.Add("HydrogenOcean"); }
-            if (GS2.externalThemes.ContainsKey("DeuteriumOcean")) { planet3_themes.Add("DeuteriumOcean"); }
             var planet3 = CreateCelestialBody(star, null, false, false);
-            planet3.Theme = random.Item(planet3_themes);
+            planet3.Theme = random.Item(Generator_GetColdPlanetTypes());
             star.Planets.Add(planet3);
 
             CreatePlanetOrbits(star);
@@ -290,6 +260,97 @@ namespace GalacticScale.Generators
                 planet1.GsTheme.CustomGeneration = true;
                 planet1.GsTheme.VeinSettings.VeinTypes.Add(GSVeinType.Generate(EVeinType.Grat, 2, 3, 0.6f, 0.6f, 5, 10, true));
             }
+        }
+
+        // ////////////////// PLANET TYPES LISTS GENERATION ///////////////// //
+
+        /// <summary>Method for generating list of hot planet types</summary>
+        /// <returns>A list of planet types</returns>
+        private List<string> Generator_GetLavaPlanetTypes()
+        {
+            List<string> themes = new List<string>();
+            themes.Add("Lava"); // vanilla theme, always exists
+            if (GS2.externalThemes.ContainsKey("HotObsidian")) { themes.Add("HotObsidian"); }
+            if (GS2.externalThemes.ContainsKey("MoltenOasis")) { themes.Add("MoltenOasis"); }
+            return themes;
+        }
+
+        /// <summary>Method for generating list of sulfuric acid planet types</summary>
+        /// <returns>A list of planet types</returns>
+        private List<string> Generator_GetAcidPlanetTypes()
+        {
+            List<string> themes = new List<string>();
+            themes.Add("VolcanicAsh"); // vanilla theme, always exists
+            if (GS2.externalThemes.ContainsKey("SulfurSea")) { themes.Add("SulfurSea"); }
+            return themes;
+        }
+
+        /// <summary>Method for generating list of possible home planet types</summary>
+        /// <returns>A list of planet types</returns>
+        private List<string> Generator_GetHomePlanetTypes()
+        {
+            List<string> themes = new List<string>();
+            themes.Add("OceanicJungle"); // vanilla theme, always exists
+            themes.Add("Sakura"); // vanilla theme, always exists
+            themes.Add("Prairie"); // vanilla theme, always exists
+            themes.Add("Mediterranean"); // vanilla theme, always exists
+            if (GS2.externalThemes.ContainsKey("Swamp")) { themes.Add("Swamp"); }
+            if (GS2.externalThemes.ContainsKey("GiganticForest")) { themes.Add("GiganticForest"); }
+            if (GS2.externalThemes.ContainsKey("RedForest")) { themes.Add("RedForest"); }
+            return themes;
+        }
+
+        /// <summary>Method for generating list of possible dry planet types</summary>
+        /// <returns>A list of planet types</returns>
+        private List<string> Generator_GetDryPlanetTypes()
+        {
+            List<string> themes = new List<string>();
+            themes.Add("Gobi"); // vanilla theme, always exists
+            themes.Add("AridDesert"); // vanilla theme, always exists
+            themes.Add("RedStone"); // vanilla theme, always exists
+            themes.Add("Hurricane"); // vanilla theme, always exists
+            return themes;
+        }
+
+        /// <summary>Method for generating list of possible wet planet types</summary>
+        /// <returns>A list of planet types</returns>
+        private List<string> Generator_GetWetPlanetTypes()
+        {
+            List<string> themes = new List<string>();
+            themes.Add("OceanicJungle"); // vanilla theme, always exists
+            themes.Add("Sakura"); // vanilla theme, always exists
+            themes.Add("Prairie"); // vanilla theme, always exists
+            themes.Add("Mediterranean"); // vanilla theme, always exists
+            if (GS2.externalThemes.ContainsKey("Swamp")) { themes.Add("Swamp"); }
+            if (GS2.externalThemes.ContainsKey("GiganticForest")) { themes.Add("GiganticForest"); }
+            return themes;
+        }
+
+        /// <summary>Method for generating list of possible cold planet types</summary>
+        /// <returns>A list of planet types</returns>
+        private List<string> Generator_GetIcyPlanetTypes()
+        {
+            List<string> themes = new List<string>();
+            themes.Add("IceLake"); // vanilla theme, always exists
+            themes.Add("IceGelisol"); // vanilla theme, always exists
+            if (GS2.externalThemes.ContainsKey("FrozenForest")) { themes.Add("FrozenForest"); }
+            if (GS2.externalThemes.ContainsKey("GlacialPlates")) { themes.Add("GlacialPlates"); }
+            return themes;
+        }
+
+        /// <summary>Method for generating list of possible cold planet types</summary>
+        /// <returns>A list of planet types</returns>
+        private List<string> Generator_GetColdPlanetTypes()
+        {
+            List<string> themes = new List<string>();
+            themes.Add("IceLake"); // vanilla theme, always exists
+            themes.Add("IceGelisol"); // vanilla theme, always exists
+            themes.Add("Barren"); // vanilla theme, always exists
+            if (GS2.externalThemes.ContainsKey("IceMalusol")) { themes.Add("IceMalusol"); }
+            if (GS2.externalThemes.ContainsKey("GlacialPlates")) { themes.Add("GlacialPlates"); }
+            if (GS2.externalThemes.ContainsKey("HydrogenOcean")) { themes.Add("HydrogenOcean"); }
+            if (GS2.externalThemes.ContainsKey("DeuteriumOcean")) { themes.Add("DeuteriumOcean"); }
+            return themes;
         }
     }
 }
