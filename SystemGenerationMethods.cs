@@ -815,23 +815,53 @@ namespace GalacticScale.Generators
 
         // //////////////////////// VARIOUS METHODS //////////////////////// //
 
+        /// <summary>Utility method for determining whether a star is bright enough to get good boost</summary>
+        /// <param name="star">Target star</param>
+        bool IsBrightStar(GSStar star)
+        {
+            if (star.luminosity < 1) { return false; } // also cuts away companion stars since they have lum = 0
+            switch (star.Spectr)
+            {
+                case ESpectrType.O:
+                case ESpectrType.B:
+                case ESpectrType.A:
+                case ESpectrType.F: return true;
+                default: return false;
+            }
+        }
+
         /// <summary>Method to apply luminosity boost to blue / white stars</summary>
+        // formulas have been adjusted using : https://www.desmos.com/calculator/owamhrm8e6
         private void BoostBlueStarLuminosity()
         {
-            // actual in-game luminosity if roughly proportional to the cubic root of star.luminosity
-            if (preferences.GetBool("luminosityBoost", false))
+            bool bLuminosityBoost = preferences.GetBool("luminosityBoost", false);
+            bool bExponentialBoost = preferences.GetBool("luminosityExponentialBoost", false);
+            float coeff = 1.0f;
+
+            if (!bLuminosityBoost && !bExponentialBoost) { return; }
+
+            if (bExponentialBoost)
+                coeff = preferences.GetFloat("exponenitalBoostCoefficient", 1f);
+            else if (bLuminosityBoost)
+                coeff = preferences.GetFloat("linearBoostCoefficient", 1f);
+
+            // iterate through stars to see which ones need a boost
+            foreach (var star in GSSettings.Stars)
             {
-                float luminosityMultiplier = preferences.GetFloat("luminosityMultiplier", 1.5f);
-                foreach (var star in GSSettings.Stars)
+                if (IsBrightStar(star))
                 {
-                    if (star.luminosity > 1.0f)
-                    {
-                        float dysonLuminosity = Mathf.Pow(star.luminosity, 0.33f);
-                        float dysonLuminosityNew = (Mathf.Pow(dysonLuminosity, 1.15f) - 1) * luminosityMultiplier + 1;
-                        star.luminosity = Mathf.Pow(dysonLuminosityNew, 3);
-                    }
+                    // actual in-game luminosity if roughly proportional to the cubic root of star.luminosity
+                    float dysonLuminosity = Mathf.Pow(star.luminosity, 0.33f);
+
+                    if (bExponentialBoost)
+                        dysonLuminosity = Mathf.Pow(dysonLuminosity, coeff);
+                    else if (bLuminosityBoost)
+                        dysonLuminosity = (dysonLuminosity - 1) * coeff + 1;
+
+                    star.luminosity = Mathf.Pow(dysonLuminosity, 3);
                 }
             }
+
         }
     }
 }

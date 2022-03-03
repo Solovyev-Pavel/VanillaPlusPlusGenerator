@@ -70,6 +70,7 @@ namespace GalacticScale.Generators
             preferences.Set("smallGasGiantMoons", false);
             preferences.Set("tidalLockInnerPlanets", false);
             preferences.Set("luminosityBoost", false);
+            preferences.Set("luminosityExponentialBoost", false);
             preferences.Set($"planetCount", new FloatPair(1, 6));
             preferences.Set($"planetSize", new FloatPair(200, 200));
             preferences.Set("sizeBias", 50);
@@ -92,13 +93,16 @@ namespace GalacticScale.Generators
             preferences.Set("chanceMoon", 25);
             preferences.Set("rareChance", 15);
 
+            preferences.Set("linearBoostCoefficient", 2f);
+            preferences.Set("exponenitalBoostCoefficient", 2f);
+
             preferences.Set("dreamSystem", false);
-            preferences.Set("luminosityMultiplier", 1.5f);
         }
 
         /// <summary>Generate UI elements</summary>
         private void AddUIElements()
         {
+            List<string> lumBoostOptions = new List<string>() { "None", "Linear", "Exponential" };
             List<string> moonsAreSmallOptions = new List<string>(){ "Disabled", "For Telluric Planets Only", "All Moons Are Small" };
             List<string> starTypeOptions = new List<string>() { "Random", "M-class", "K-class", "G-class", "F-class", "A-class",
                                                                 "B-class", "O-class", "Red Giant", "Yellow Giant", "White Giant", "Blue Giant" };
@@ -125,7 +129,11 @@ namespace GalacticScale.Generators
             UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Higher Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
             UI.Add("moonsAreSmall", Options.Add(GSUI.Combobox("Moons Are Small", moonsAreSmallOptions, SmallMoonsCallback, InitializeSmallMoonsComboBox)));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
-            UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
+            //UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
+
+            UI.Add("luminosityBoost", Options.Add(GSUI.Combobox("Blue Stars Luminosity Boost", lumBoostOptions, LuminosityBoostCallback, InitializeLuminosityBoostCombobox)));
+            UI.Add("linearBoostCoeff", Options.Add(GSUI.Slider("Coefficient", 1f, 2f, 5f, 0.25f, "linearBoostCoefficient")));
+            UI.Add("exponentialBoostCoeff", Options.Add(GSUI.Slider("Coefficient", 1f, 2f, 3f, 0.25f, "exponenitalBoostCoefficient")));
 
             Options.Add(GSUI.Spacer());
             Options.Add(GSUI.Separator());
@@ -210,6 +218,74 @@ namespace GalacticScale.Generators
                 case 10: preferences.Set("startingSystemType", "WhiteGiant"); break;
                 case 11: preferences.Set("startingSystemType", "BlueGiant"); break;
                 default: preferences.Set("startingSystemType", "G"); break;
+            }
+        }
+
+        /// <summary>Initializer for blue stars luminosity boost combo box</summary>
+        private void InitializeLuminosityBoostCombobox()
+        {
+            bool bLuminosityBoost = preferences.GetBool("luminosityBoost", false);
+            bool bExponentialBoost = preferences.GetBool("luminosityExponentialBoost", false);
+
+            if (!bLuminosityBoost)
+            {
+                UI["luminosityBoost"].Set(0); // none
+                UI["linearBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                UI["exponentialBoostCoeff"].RectTransform.gameObject.SetActive(false);
+            }
+            else if (!bExponentialBoost)
+            {
+                UI["luminosityBoost"].Set(1); // linear
+                UI["linearBoostCoeff"].RectTransform.gameObject.SetActive(true);
+                UI["exponentialBoostCoeff"].RectTransform.gameObject.SetActive(false);
+            }
+            else
+            {
+                UI["luminosityBoost"].Set(2); // exponential
+                UI["linearBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                UI["exponentialBoostCoeff"].RectTransform.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>Callback for blue stars luminosity boost property</summary>
+        /// <param name="o">Blue stars luminosity boost flag</param>
+        private void LuminosityBoostCallback(Val o)
+        {
+            int val = o;
+            switch (val)
+            {
+                case 0: // no boost
+                    {
+                        preferences.Set("luminosityBoost", false);
+                        preferences.Set("luminosityExponentialBoost", false);
+                        UI["linearBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                        UI["exponentialBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                        break;
+                    }
+                case 1: // linear boost
+                    {
+                        preferences.Set("luminosityBoost", true);
+                        preferences.Set("luminosityExponentialBoost", false);
+                        UI["linearBoostCoeff"].RectTransform.gameObject.SetActive(true);
+                        UI["exponentialBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                        break;
+                    }
+                case 2: // exponential boost
+                    {
+                        preferences.Set("luminosityBoost", true);
+                        preferences.Set("luminosityExponentialBoost", true);
+                        UI["linearBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                        UI["exponentialBoostCoeff"].RectTransform.gameObject.SetActive(true);
+                        break;
+                    }
+                default:
+                    {
+                        preferences.Set("luminosityBoost", false);
+                        preferences.Set("luminosityExponentialBoost", false);
+                        UI["linearBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                        UI["exponentialBoostCoeff"].RectTransform.gameObject.SetActive(false);
+                        break;
+                    }
             }
         }
 
