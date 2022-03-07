@@ -43,7 +43,7 @@ namespace GalacticScale.Generators
 
             Config.MinStarCount = 16;
             Config.MaxStarCount = 96;
-            Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64); ;
+            Config.DefaultStarCount = preferences.GetInt("defaultStarCount", 64);
         }
 
         /// <summary>Export of generator's preferences</summary>
@@ -71,6 +71,7 @@ namespace GalacticScale.Generators
             preferences.Set("tidalLockInnerPlanets", false);
             preferences.Set("luminosityBoost", false);
             preferences.Set("luminosityExponentialBoost", false);
+            preferences.Set("realisticSolarPowerLevels", false);
             preferences.Set($"planetCount", new FloatPair(1, 6));
             preferences.Set($"planetSize", new FloatPair(200, 200));
             preferences.Set("sizeBias", 50);
@@ -129,11 +130,12 @@ namespace GalacticScale.Generators
             UI.Add("moreLikelyGasGiantMoons", Options.Add(GSUI.Checkbox("Higher Chance of Gas Giant Moons", false, "moreLikelyGasGiantMoons")));
             UI.Add("moonsAreSmall", Options.Add(GSUI.Combobox("Moons Are Small", moonsAreSmallOptions, SmallMoonsCallback, InitializeSmallMoonsComboBox)));
             UI.Add("tidalLockInnerPlanets", Options.Add(GSUI.Checkbox("Tidal Lock Inner Planets", false, "tidalLockInnerPlanets")));
-            //UI.Add("luminosityBoost", Options.Add(GSUI.Checkbox("Boost Luminosity of Blue Stars", false, "luminosityBoost")));
-
+ 
             UI.Add("luminosityBoost", Options.Add(GSUI.Combobox("Blue Stars Luminosity Boost", lumBoostOptions, LuminosityBoostCallback, InitializeLuminosityBoostCombobox)));
             UI.Add("linearBoostCoeff", Options.Add(GSUI.Slider("Coefficient", 1f, 2f, 5f, 0.25f, "linearBoostCoefficient")));
             UI.Add("exponentialBoostCoeff", Options.Add(GSUI.Slider("Coefficient", 1f, 2f, 3f, 0.25f, "exponenitalBoostCoefficient")));
+
+            UI.Add("solarPowerLevels", Options.Add(GSUI.Checkbox("Realistic Solar Power Levels", false, "realisticSolarPowerLevels")));
 
             Options.Add(GSUI.Spacer());
             Options.Add(GSUI.Separator());

@@ -51,7 +51,7 @@ namespace GalacticScale.Generators
 
                 // if this is a normal star, zones are dependent on luminosity
                 // but we need to shift zones outwards for giant stars
-                float multiplier = (starType == EStarType.GiantStar) ? (7.0f - 0.5f * Mathf.Pow(luminosity, 0.25f)) : 1.0f;
+                float multiplier = (starType == EStarType.GiantStar) ? (6.25f - Mathf.Pow(luminosity, 0.25f)) : 1.0f;
 
                 warmZoneEdge = multiplier * Mathf.Sqrt(luminosity / 2.5f);
                 temperateZoneEdge = multiplier * Mathf.Sqrt(luminosity / 1.1f);
@@ -810,6 +810,28 @@ namespace GalacticScale.Generators
                 // rare resource chance
                 if (body != birthPlanet)
                     body.rareChance = preferences.GetFloat("rareChance", 15) * 0.01f;
+            }
+        }
+
+        /// <summary>Method for setting more 'realistic' solar power levels for planets</summary>
+        private void SetPlanetSolarPowerLevels()
+        {
+            foreach (var star in GSSettings.Stars)
+            {
+                SystemZones sz = new SystemZones(star.luminosity, star.Type, star.Spectr);
+                float baseDist = (sz.temperateZoneEdge + sz.coldZoneEdge) / 2f;
+
+                foreach (var planet in star.Planets)
+                {
+                    float planetSolarLevel = Mathf.Pow((baseDist / planet.OrbitRadius), 1.75f);
+                    planetSolarLevel = Mathf.Max(Mathf.Min(5f, planetSolarLevel), 0.33f);
+
+                    if (planet.Scale != 10f) // gas giants don't need solar power values
+                        planet.Luminosity = planetSolarLevel;
+
+                    foreach (var moon in planet.Moons)
+                        moon.Luminosity = planetSolarLevel;
+                }
             }
         }
 

@@ -10,7 +10,6 @@ namespace GalacticScale.Generators
     {
         private GSPlanet birthPlanet;
         private GSPlanet birthPlanetHost;
-        //private int birthPlanetIndex = -1;
         private bool birthPlanetIsMoon;
         private GSStar birthStar;
         private float maxStepLength = 3.5f;
@@ -36,7 +35,7 @@ namespace GalacticScale.Generators
 
             Log($"Start {GSSettings.Seed}");
             GSSettings.Reset(GSSettings.Seed);
-            
+
             // generate galaxy
             SetupBaseThemes();
             InitThemes();
@@ -60,6 +59,9 @@ namespace GalacticScale.Generators
                 GeneratePlanetsForStar(star);
                 EnsureProperOrbitalPeriods(star);
             }
+
+            if (preferences.GetBool("realisticSolarPowerLevels", false))
+                SetPlanetSolarPowerLevels();
 
             BoostBlueStarLuminosity();
             foreach (var star in GSSettings.Stars)
@@ -107,5 +109,10 @@ namespace GalacticScale.Generators
             //Warn($"ClampedNormal min:{min} max:{max} bias:{bias} range:{range} average:{average} sdHigh:{sdHigh} sdLow:{sdLow} sd:{sd} fResult:{fResult} result:{result}");
             return result;
         }
-   }
+
+        public void OnUpdate(string key, Val val)
+        {
+            preferences.Set(key, val);
+        }
+    }
 }
