@@ -75,13 +75,13 @@ namespace GalacticScale.Generators
 
             double chance = preferences.GetDouble("binaryStarChance", 25) * 0.01;
             bool bDreamStatringSystem = preferences.GetBool("dreamSystem", false);
-            bool bIsBrightStar = (star.Spectr == ESpectrType.A || star.Spectr == ESpectrType.B || star.Spectr == ESpectrType.O);
+            bool bIsBrightStar = IsBrightStar(star);
 
             // - brighter stars are more likely to have companion stars
             // - black holes and neutron stars, on the other hand, are far less likely to have a companion
             // - white dwarves will never have companions
             if (bIsBrightStar)
-                chance = Math.Max(chance * 1.5, 1.0);
+                chance = Math.Min(chance * 1.5, 1.0);
             else if (star.Type == EStarType.NeutronStar || star.Type == EStarType.BlackHole)
                 chance *= 0.33;
             else if (star.Type == EStarType.WhiteDwarf)
@@ -89,14 +89,14 @@ namespace GalacticScale.Generators
 
             // dream start + bright star == very high chance of companion
             if (bDreamStatringSystem && star == birthStar)
-                chance = Math.Max(chance + 0.5, 1.0);
+                chance = Math.Min(chance + 0.5, 1.0);
 
             if (random.NextPick(chance))
             {
                 (EStarType, ESpectrType) companionType = ConvertEStarValue(ChooseCompanionStarType(star));
 
                 // dream start with a bright home star has a very high chance of having black hole or neutron star as companion
-                if (bDreamStatringSystem && star == birthStar && bIsBrightStar && random.NextPick(0.5))
+                if (bDreamStatringSystem && star == birthStar && random.NextPick(0.5))
                 {
                     if (random.NextPick(0.5))
                         companionType = (EStarType.NeutronStar, ESpectrType.X);
